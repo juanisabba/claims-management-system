@@ -16,4 +16,8 @@ export class Severity {
     }
     this.value = value;
   }
+
+  static create(value: string): Severity {
+    return new Severity(value);
+  }
 }
