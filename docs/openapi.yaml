@@ -1,0 +1,677 @@
+openapi: 3.0.3
+info:
+  title: Claims Management System API
+  description: |
+    RESTful API for managing insurance claims and their associated damages.
+
+    ## Business Rules
+    - Claims start with status `Pending`
+    - Damages can only be managed (added/edited/deleted) when claim status is `Pending`
+    - To transition to `Finished` status, claim must have:
+      - At least one damage with severity `high`
+      - Description with more than 100 characters
+    - Total amount is automatically calculated as sum of all damage prices
+
+    ## Status Flow
+    ```
+    Pending → In Review → Finished
+    ```
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@claims-system.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server (v1)
+
+tags:
+  - name: Claims
+    description: Operations related to claims management
+  - name: Damages
+    description: Operations related to damages associated with claims
+
+paths:
+  /claims:
+    get:
+      tags:
+        - Claims
+      summary: List all claims
+      description: Retrieve a paginated list of all claims with their calculated total amounts
+      operationId: listClaims
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: status
+          in: query
+          description: Filter by claim status
+          schema:
+            $ref: "#/components/schemas/ClaimStatus"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ClaimListItem"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      tags:
+        - Claims
+      summary: Create a new claim
+      description: Create a new claim with initial status `Pending`
+      operationId: createClaim
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClaimRequest"
+      responses:
+        "201":
+          description: Claim created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /claims/{id}:
+    get:
+      tags:
+        - Claims
+      summary: Get claim details
+      description: Retrieve complete claim information including all associated damages and calculated total amount
+      operationId: getClaimById
+      parameters:
+        - $ref: "#/components/parameters/ClaimId"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags:
+        - Claims
+      summary: Update claim
+      description: |
+        Update claim properties (status, description, title).
+
+        **Business Rules:**
+        - To change status to `Finished`:
+          - Must have at least one damage with severity `high`
+          - Description must have more than 100 characters
+      operationId: updateClaim
+      parameters:
+        - $ref: "#/components/parameters/ClaimId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClaimRequest"
+      responses:
+        "200":
+          description: Claim updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /claims/{id}/damages:
+    post:
+      tags:
+        - Damages
+      summary: Add damage to claim
+      description: |
+        Create a new damage associated with a claim.
+
+        **Business Rule:** Only allowed when claim status is `Pending`
+      operationId: createDamage
+      parameters:
+        - $ref: "#/components/parameters/ClaimId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDamageRequest"
+      responses:
+        "201":
+          description: Damage created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Damage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: Forbidden - Claim status is not Pending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Forbidden"
+                message: "Damages can only be added when claim status is Pending"
+                statusCode: 403
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /claims/{id}/damages/{damageId}:
+    patch:
+      tags:
+        - Damages
+      summary: Update damage
+      description: |
+        Update specific fields of a damage (price, severity, part, imageUrl).
+
+        **Business Rule:** Only allowed when claim status is `Pending`
+      operationId: updateDamage
+      parameters:
+        - $ref: "#/components/parameters/ClaimId"
+        - $ref: "#/components/parameters/DamageId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDamageRequest"
+      responses:
+        "200":
+          description: Damage updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Damage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: Forbidden - Claim status is not Pending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Forbidden"
+                message: "Damages can only be updated when claim status is Pending"
+                statusCode: 403
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Damages
+      summary: Delete damage
+      description: |
+        Remove a damage from a claim.
+
+        **Business Rule:** Only allowed when claim status is `Pending`
+      operationId: deleteDamage
+      parameters:
+        - $ref: "#/components/parameters/ClaimId"
+        - $ref: "#/components/parameters/DamageId"
+      responses:
+        "204":
+          description: Damage deleted successfully
+        "403":
+          description: Forbidden - Claim status is not Pending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Forbidden"
+                message: "Damages can only be deleted when claim status is Pending"
+                statusCode: 403
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  schemas:
+    ClaimStatus:
+      type: string
+      enum:
+        - Pending
+        - In Review
+        - Finished
+      description: Status of the claim
+      example: Pending
+
+    Severity:
+      type: string
+      enum:
+        - low
+        - mid
+        - high
+      description: Severity level of the damage
+      example: high
+
+    CreateClaimRequest:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Title of the claim
+          example: "Vehicle collision on Main Street"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Detailed description of the claim
+          example: "Collision occurred at intersection due to failure to yield"
+
+    UpdateClaimRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Updated title of the claim
+          example: "Updated claim title"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Updated description (required >100 chars for Finished status)
+          example: "This is a detailed description that contains more than one hundred characters to satisfy the business rule requirement for transitioning to finished status"
+        status:
+          $ref: "#/components/schemas/ClaimStatus"
+      minProperties: 1
+
+    ClaimListItem:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - status
+        - totalAmount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the claim
+          example: "507f1f77bcf86cd799439011"
+        title:
+          type: string
+          description: Title of the claim
+          example: "Vehicle collision on Main Street"
+        description:
+          type: string
+          description: Description of the claim
+          example: "Collision occurred at intersection"
+        status:
+          $ref: "#/components/schemas/ClaimStatus"
+        totalAmount:
+          type: number
+          format: float
+          minimum: 0
+          description: Calculated total amount (sum of all damage prices)
+          example: 1500.50
+        damageCount:
+          type: integer
+          minimum: 0
+          description: Number of associated damages
+          example: 3
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when claim was created
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when claim was last updated
+          example: "2024-01-16T14:45:00Z"
+
+    ClaimDetail:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - status
+        - totalAmount
+        - damages
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the claim
+          example: "507f1f77bcf86cd799439011"
+        title:
+          type: string
+          description: Title of the claim
+          example: "Vehicle collision on Main Street"
+        description:
+          type: string
+          description: Detailed description of the claim
+          example: "Collision occurred at intersection due to failure to yield. The front bumper was severely damaged and the headlight was completely broken. The impact also caused damage to the front fender and hood."
+        status:
+          $ref: "#/components/schemas/ClaimStatus"
+        totalAmount:
+          type: number
+          format: float
+          minimum: 0
+          description: Calculated total amount (sum of all damage prices)
+          example: 1500.50
+        damages:
+          type: array
+          description: List of all damages associated with this claim
+          items:
+            $ref: "#/components/schemas/Damage"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when claim was created
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when claim was last updated
+          example: "2024-01-16T14:45:00Z"
+
+    CreateDamageRequest:
+      type: object
+      required:
+        - part
+        - severity
+        - imageUrl
+        - price
+      properties:
+        part:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Part or component that was damaged
+          example: "Front bumper"
+        severity:
+          $ref: "#/components/schemas/Severity"
+        imageUrl:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 500
+          description: URL of the damage image
+          example: "https://example.com/images/damage-001.jpg"
+        price:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+          description: Cost of the damage
+          example: 500.00
+
+    UpdateDamageRequest:
+      type: object
+      properties:
+        part:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Updated part description
+          example: "Front bumper (left side)"
+        severity:
+          $ref: "#/components/schemas/Severity"
+        imageUrl:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 500
+          description: Updated image URL
+          example: "https://example.com/images/damage-001-updated.jpg"
+        price:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+          description: Updated price
+          example: 550.00
+      minProperties: 1
+
+    Damage:
+      type: object
+      required:
+        - id
+        - claimId
+        - part
+        - severity
+        - imageUrl
+        - price
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the damage
+          example: "507f191e810c19729de860ea"
+        claimId:
+          type: string
+          format: uuid
+          description: ID of the associated claim
+          example: "507f1f77bcf86cd799439011"
+        part:
+          type: string
+          description: Part or component that was damaged
+          example: "Front bumper"
+        severity:
+          $ref: "#/components/schemas/Severity"
+        imageUrl:
+          type: string
+          format: uri
+          description: URL of the damage image
+          example: "https://example.com/images/damage-001.jpg"
+        price:
+          type: number
+          format: float
+          minimum: 0
+          description: Cost of the damage
+          example: 500.00
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when damage was created
+          example: "2024-01-15T11:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when damage was last updated
+          example: "2024-01-15T11:00:00Z"
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          description: Items per page
+          example: 10
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of items
+          example: 50
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total number of pages
+          example: 5
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+        - statusCode
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "Bad Request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Validation failed"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 400
+        details:
+          type: array
+          description: Detailed validation errors
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field that failed validation
+                example: "price"
+              message:
+                type: string
+                description: Validation error message
+                example: "Price must be greater than 0"
+
+  parameters:
+    ClaimId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier of the claim
+      schema:
+        type: string
+        format: uuid
+      example: "507f1f77bcf86cd799439011"
+
+    DamageId:
+      name: damageId
+      in: path
+      required: true
+      description: Unique identifier of the damage
+      schema:
+        type: string
+        format: uuid
+      example: "507f191e810c19729de860ea"
+
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Bad Request"
+            message: "Invalid request parameters"
+            statusCode: 400
+
+    NotFound:
+      description: Not Found - Resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Not Found"
+            message: "Claim not found"
+            statusCode: 404
+
+    UnprocessableEntity:
+      description: Unprocessable Entity - Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Unprocessable Entity"
+            message: "Validation failed"
+            statusCode: 422
+            details:
+              - field: "description"
+                message: "Description must have more than 100 characters to change status to Finished"
+              - field: "severity"
+                message: "At least one damage with severity 'high' is required to change status to Finished"
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: "Internal Server Error"
+            message: "An unexpected error occurred"
+            statusCode: 500
