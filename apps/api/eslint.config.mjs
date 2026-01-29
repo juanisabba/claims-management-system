@@ -28,15 +28,15 @@ export default tseslint.config(
     rules: {
       // Reglas que estamos ajustando para evitar conflictos con Mongoose:
       '@typescript-eslint/no-unsafe-assignment': 'off', // Permite asignar valores que el linter no puede resolver (Mongoose Schemas)
-      '@typescript-eslint/no-unsafe-call': 'off',       // Permite constructores complejos (new Schema)
+      '@typescript-eslint/no-unsafe-call': 'off', // Permite constructores complejos (new Schema)
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      
+
       // Tus reglas previas:
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },
 );

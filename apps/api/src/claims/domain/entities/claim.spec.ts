@@ -59,6 +59,23 @@ describe('Claim Entity', () => {
     });
   });
 
+  describe('Internal Methods (Edge Cases)', () => {
+    it('should not update damage if it does not exist in internalUpdateDamage', () => {
+      const initialDamagesCount = claim.damages.length;
+      const nonExistentDamage = new Damage(
+        'non-existent',
+        'part',
+        SeverityEnum.LOW,
+        'url',
+        100,
+      );
+
+      claim.internalUpdateDamage(nonExistentDamage);
+
+      expect(claim.damages.length).toBe(initialDamagesCount);
+    });
+  });
+
   describe('Damage Management', () => {
     it('should add damage in Pending state', () => {
       claim.addDamage(damage1);

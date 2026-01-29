@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { DomainError } from '../../domain/errors/domain-error';
 
 @Catch()
 export class DomainExceptionFilter implements ExceptionFilter {
@@ -13,19 +14,19 @@ export class DomainExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
 
-    // Si es un error de negocio (puedes personalizarlos luego)
-    let status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.BAD_REQUEST;
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    if (exception.name === 'ClaimNotFoundException') {
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+    } else if (exception instanceof DomainError) {
+      status = HttpStatus.BAD_REQUEST;
+    } else if (exception.name === 'ClaimNotFoundException') {
       status = HttpStatus.NOT_FOUND;
     }
 
     response.status(status).json({
       statusCode: status,
-      message: exception.message || 'Domain Error',
+      message: exception.message || 'Internal server error',
       timestamp: new Date().toISOString(),
     });
   }
