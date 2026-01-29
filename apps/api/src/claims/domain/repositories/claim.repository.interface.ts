@@ -1,0 +1,17 @@
+import { Claim } from '../entities/claim.entity';
+import { ClaimStatus } from '../value-objects/claim-status.enum';
+
+export interface ClaimFilters {
+  status?: ClaimStatus;
+  clientId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface IClaimRepository {
+  save(claim: Claim): Promise<void>;
+  findById(id: string): Promise<Claim | null>;
+  findAll(filters: ClaimFilters): Promise<Claim[]>;
+  update(claim: Claim): Promise<void>;
+  delete(id: string): Promise<void>;
+}
