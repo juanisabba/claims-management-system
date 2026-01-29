@@ -7,6 +7,7 @@ import { FinishedState } from '../states/finished.state';
 
 export class Claim {
   readonly id: string;
+  title: string;
   description: string;
   status: ClaimStatus;
   private _damages: Damage[];
@@ -14,33 +15,27 @@ export class Claim {
 
   constructor(
     id: string,
+    title: string,
     description: string,
     status: ClaimStatus = ClaimStatus.Pending,
     damages: Damage[] = [],
   ) {
     this.id = id;
+    this.title = title; // Initialize title
     this.description = description;
     this.status = status;
     this._damages = damages;
-    // Initialize state object based on the provided status (Rehydration)
     this.state = this.mapStatusToState(status);
   }
 
-  /**
-   * BR-03: Calculated property for the total claim amount.
-   */
   get totalAmount(): number {
     return this._damages.reduce((sum, damage) => sum + damage.price, 0);
   }
 
-  /**
-   * Returns a copy of the damages to maintain encapsulation.
-   */
   get damages(): Damage[] {
     return [...this._damages];
   }
 
-  // Helper to ensure the state object matches the status (Rehydration logic)
   private mapStatusToState(status: ClaimStatus): ClaimStatusState {
     switch (status) {
       case ClaimStatus.InReview:
@@ -52,7 +47,6 @@ export class Claim {
     }
   }
 
-  // --- Public methods (Delegated to State) ---
   addDamage(damage: Damage): void {
     this.state.addDamage(this, damage);
   }
@@ -69,7 +63,6 @@ export class Claim {
     this.state.transitionTo(this, status);
   }
 
-  // --- Internal methods (Called by State objects ONLY) ---
   internalAddDamage(damage: Damage): void {
     this._damages.push(damage);
   }

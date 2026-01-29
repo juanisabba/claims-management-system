@@ -25,6 +25,7 @@ export class CreateClaimUseCase {
 
     const newClaim = new Claim(
       claimId,
+      dto.title,
       dto.description,
       ClaimStatus.Pending,
       damages,
