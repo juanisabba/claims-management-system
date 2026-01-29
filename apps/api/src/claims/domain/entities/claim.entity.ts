@@ -9,7 +9,7 @@ export class Claim {
   readonly id: string;
   description: string;
   status: ClaimStatus;
-  damages: Damage[];
+  private _damages: Damage[];
   private state: ClaimStatusState;
 
   constructor(
@@ -21,12 +21,26 @@ export class Claim {
     this.id = id;
     this.description = description;
     this.status = status;
-    this.damages = damages;
-    // Inicializamos el objeto de estado según el status que recibimos
+    this._damages = damages;
+    // Initialize state object based on the provided status (Rehydration)
     this.state = this.mapStatusToState(status);
   }
 
-  // Helper para asegurar que el objeto de estado coincida con el status (rehidratación)
+  /**
+   * BR-03: Calculated property for the total claim amount.
+   */
+  get totalAmount(): number {
+    return this._damages.reduce((sum, damage) => sum + damage.price, 0);
+  }
+
+  /**
+   * Returns a copy of the damages to maintain encapsulation.
+   */
+  get damages(): Damage[] {
+    return [...this._damages];
+  }
+
+  // Helper to ensure the state object matches the status (Rehydration logic)
   private mapStatusToState(status: ClaimStatus): ClaimStatusState {
     switch (status) {
       case ClaimStatus.InReview:
@@ -38,7 +52,7 @@ export class Claim {
     }
   }
 
-  // --- Public methods (Delegados al estado) ---
+  // --- Public methods (Delegated to State) ---
   addDamage(damage: Damage): void {
     this.state.addDamage(this, damage);
   }
@@ -55,19 +69,19 @@ export class Claim {
     this.state.transitionTo(this, status);
   }
 
-  // --- Internal methods (Solo llamados por los objetos State) ---
+  // --- Internal methods (Called by State objects ONLY) ---
   internalAddDamage(damage: Damage): void {
-    this.damages.push(damage);
+    this._damages.push(damage);
   }
 
   internalRemoveDamage(damageId: string): void {
-    this.damages = this.damages.filter((d) => d.id !== damageId);
+    this._damages = this._damages.filter((d) => d.id !== damageId);
   }
 
   internalUpdateDamage(damage: Damage): void {
-    const index = this.damages.findIndex((d) => d.id === damage.id);
+    const index = this._damages.findIndex((d) => d.id === damage.id);
     if (index > -1) {
-      this.damages[index] = damage;
+      this._damages[index] = damage;
     }
   }
 
