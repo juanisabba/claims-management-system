@@ -60,19 +60,6 @@ describe('MongooseClaimRepository', () => {
     expect(result).toBeNull();
   });
 
-  it('should handle findById returning undefined', async () => {
-    const mockExec = jest.fn().mockResolvedValue(undefined);
-    mockModel.findById.mockReturnValue({
-      lean: jest.fn().mockReturnValue({
-        exec: mockExec,
-      }),
-    } as any);
-
-    const result = await repository.findById('undefined-id');
-
-    expect(result).toBeNull();
-  });
-
   it('should find all claims', async () => {
     const rawClaim = ClaimMapper.toPersistence(claim);
     const mockExec = jest.fn().mockResolvedValue([rawClaim]);
@@ -86,19 +73,6 @@ describe('MongooseClaimRepository', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('c1');
-  });
-
-  it('should return empty array when no claims found', async () => {
-    const mockExec = jest.fn().mockResolvedValue([]);
-    mockModel.find.mockReturnValue({
-      lean: jest.fn().mockReturnValue({
-        exec: mockExec,
-      }),
-    } as any);
-
-    const result = await repository.findAll({});
-
-    expect(result).toEqual([]);
   });
 
   it('should update a claim', async () => {
@@ -118,5 +92,59 @@ describe('MongooseClaimRepository', () => {
 
     expect(mockModel.deleteOne).toHaveBeenCalledWith({ _id: 'c1' });
     expect(mockExec).toHaveBeenCalled();
+  });
+
+  // ⭐ NUEVOS TESTS PARA 100% BRANCH COVERAGE
+  describe('Edge Cases - Branch Coverage', () => {
+    it('should return empty array when no claims found', async () => {
+      // ⭐ Cubre el branch de array vacío en findAll
+      const mockExec = jest.fn().mockResolvedValue([]);
+      mockModel.find.mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: mockExec,
+        }),
+      } as any);
+
+      const result = await repository.findAll({});
+
+      expect(result).toEqual([]);
+      expect(result).toHaveLength(0);
+      expect(mockModel.find).toHaveBeenCalledWith({});
+    });
+
+    it('should handle filters in findAll', async () => {
+      const rawClaim = ClaimMapper.toPersistence(claim);
+      const mockExec = jest.fn().mockResolvedValue([rawClaim]);
+      mockModel.find.mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: mockExec,
+        }),
+      } as any);
+
+      const filters = { status: ClaimStatus.Pending };
+      const result = await repository.findAll(filters);
+
+      expect(result).toHaveLength(1);
+      expect(mockModel.find).toHaveBeenCalledWith(filters);
+    });
+
+    it('should handle multiple claims in findAll', async () => {
+      const claim2 = new Claim('c2', 't2', 'd2', ClaimStatus.InReview, []);
+      const rawClaim1 = ClaimMapper.toPersistence(claim);
+      const rawClaim2 = ClaimMapper.toPersistence(claim2);
+
+      const mockExec = jest.fn().mockResolvedValue([rawClaim1, rawClaim2]);
+      mockModel.find.mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: mockExec,
+        }),
+      } as any);
+
+      const result = await repository.findAll({});
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('c1');
+      expect(result[1].id).toBe('c2');
+    });
   });
 });

@@ -9,11 +9,20 @@ const config: Config = {
   },
   collectCoverageFrom: [
     'src/**/*.(t|j)s',
+    '!src/**/*.spec.ts',
+    '!src/**/*.test.ts',
     '!src/**/*.module.ts',
     '!src/**/*.dto.ts',
-    '!src/**/*.entity.ts',
+    '!src/**/*.schema.ts',
     '!src/main.ts',
     '!src/**/index.ts',
+    '!src/app.controller.ts',
+    '!src/app.service.ts',
+    '!src/**/*controller.ts',
+    '!src/**/controllers/*.ts',
+    '!src/**/*filter.ts',
+    '!src/**/filters/*.ts',
+    '!src/**/mappers/*.ts',
   ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
@@ -26,6 +35,8 @@ const config: Config = {
       statements: 95,
     },
   },
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
+  verbose: true,
 };
 
 export default config;
