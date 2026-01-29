@@ -12,7 +12,7 @@ interface RawDamage {
   price: number;
 }
 
-interface RawClaim {
+export interface RawClaim {
   _id: string;
   title: string;
   description: string;

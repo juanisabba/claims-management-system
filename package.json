@@ -10,9 +10,11 @@
     "build": "pnpm --filter api build && pnpm --filter client build"
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@nestjs/mongoose": "^11.0.4",
     "@types/mongoose": "^5.11.97",
     "mongoose": "^9.1.5"
   }
