@@ -1,0 +1,32 @@
+# --- System Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Dependencies ---
+node_modules/
+.pnpm-debug.log
+pnpm-lock.yaml
+
+# --- NestJS (API) ---
+/apps/api/dist/
+/apps/api/node_modules/
+/apps/api/*.log
+/apps/api/.env
+/apps/api/.env.test
+
+# --- Angular (Client) ---
+/apps/client/dist/
+/apps/client/.angular/
+/apps/client/node_modules/
+/apps/client/*.log
+/apps/client/src/environments/environment.prod.ts
+
+# --- Docker ---
+.docker/
+docker-compose.override.yml
+
+# --- Coverage/Tests ---
+coverage/
+*.lcov

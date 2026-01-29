@@ -1,0 +1,15 @@
+{
+  "name": "claims-management-system",
+  "private": true,
+  "description": "Claims Management Monorepo",
+  "scripts": {
+    "api:dev": "pnpm --filter api run start:dev",
+    "api:test": "pnpm --filter api run test",
+    "api:cov": "pnpm --filter api run test:cov",
+    "client:dev": "pnpm --filter client run start",
+    "build": "pnpm --filter api build && pnpm --filter client build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
