@@ -14,10 +14,14 @@ export class DomainExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
 
     // Si es un error de negocio (puedes personalizarlos luego)
-    const status =
+    let status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.BAD_REQUEST;
+
+    if (exception.name === 'ClaimNotFoundException') {
+      status = HttpStatus.NOT_FOUND;
+    }
 
     response.status(status).json({
       statusCode: status,
