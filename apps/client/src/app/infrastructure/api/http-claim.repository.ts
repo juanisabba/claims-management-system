@@ -23,6 +23,10 @@ export class HttpClaimRepository implements ClaimRepository {
     return this.http.post<Claim>(`${this.apiUrl}/${claimId}/damages`, damage);
   }
 
+  deleteDamage(claimId: string, damageId: string): Observable<Claim> {
+    return this.http.delete<Claim>(`${this.apiUrl}/${claimId}/damages/${damageId}`);
+  }
+
   updateStatus(id: string, status: ClaimStatus): Observable<Claim> {
     return this.http.patch<Claim>(`${this.apiUrl}/${id}`, { status });
   }
