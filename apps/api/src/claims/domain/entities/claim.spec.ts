@@ -42,8 +42,8 @@ describe('Claim Entity', () => {
     });
 
     it('should initialize with default Pending status', () => {
-        const defaultClaim = new Claim('c', 't', 'd');
-        expect(defaultClaim.status).toBe(ClaimStatus.Pending);
+      const defaultClaim = new Claim('c', 't', 'd');
+      expect(defaultClaim.status).toBe(ClaimStatus.Pending);
     });
   });
 
