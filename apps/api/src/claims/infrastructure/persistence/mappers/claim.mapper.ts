@@ -1,7 +1,7 @@
 import { Claim } from '../../../domain/entities/claim.entity';
 import { Damage } from '../../../domain/entities/damage.entity';
 import { ClaimStatus } from '../../../domain/value-objects/claim-status.enum';
-import { Severity } from '../../../domain/value-objects/severity.vo';
+import { SeverityEnum } from '../../../domain/value-objects/severity.enum';
 
 interface RawDamage {
   _id: string;
@@ -29,7 +29,7 @@ export class ClaimMapper {
         new Damage(
           damage._id,
           damage.part,
-          Severity.create(damage.severity),
+          damage.severity as SeverityEnum,
           damage.imageUrl,
           damage.price,
         ),
@@ -50,7 +50,7 @@ export class ClaimMapper {
     const damages = claim.damages.map((damage) => ({
       _id: damage.id,
       part: damage.part,
-      severity: damage.severity.value,
+      severity: damage.severity,
       imageUrl: damage.imageUrl,
       price: damage.price,
     }));
@@ -77,7 +77,7 @@ export class ClaimMapper {
       damages: claim.damages.map((damage) => ({
         id: damage.id,
         part: damage.part,
-        severity: damage.severity.value,
+        severity: damage.severity,
         imageUrl: damage.imageUrl,
         price: damage.price,
       })),

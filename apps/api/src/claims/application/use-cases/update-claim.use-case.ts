@@ -4,6 +4,7 @@ import { UpdateClaimDto } from '../dtos/update-claim.dto';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimNotFoundException } from '../exceptions/claim-not-found.exception';
 import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
+import { SeverityEnum } from '../../domain/value-objects/severity.enum';
 import { DomainError } from '../../domain/errors/domain-error';
 
 @Injectable()
@@ -34,7 +35,7 @@ export class UpdateClaimUseCase {
           );
         }
         const hasHighSeverityDamage = claim.damages.some(
-          (d) => d.severity.value === 'high',
+          (d) => d.severity === SeverityEnum.HIGH,
         );
         if (!hasHighSeverityDamage) {
           throw new DomainError(

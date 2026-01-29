@@ -3,6 +3,7 @@ import type { Claim } from '../entities/claim.entity';
 import { Damage } from '../entities/damage.entity';
 import { ClaimStatusState } from './claim-status.state';
 import { ClaimStatus } from '../value-objects/claim-status.enum';
+import { SeverityEnum } from '../value-objects/severity.enum';
 import { DomainError } from '../errors/domain-error';
 import { PendingState } from './pending.state';
 import { FinishedState } from './finished.state';
@@ -51,7 +52,7 @@ export class InReviewState implements ClaimStatusState {
   private validateCompletionGuard(claim: Claim): void {
     // Usamos el valor del enum directamente según tu implementación de Severity
     const hasHighSeverity = claim.damages.some(
-      (d) => d.severity.value === 'high',
+      (d) => d.severity === SeverityEnum.HIGH,
     );
 
     if (hasHighSeverity && claim.description.length <= 100) {

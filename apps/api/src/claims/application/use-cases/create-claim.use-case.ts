@@ -3,7 +3,6 @@ import { CreateClaimDto } from '../dtos/create-claim.dto';
 import { Claim } from 'src/claims/domain/entities/claim.entity';
 import { IClaimRepository } from 'src/claims/domain/repositories/claim.repository.interface';
 import { Damage } from 'src/claims/domain/entities/damage.entity';
-import { Severity } from 'src/claims/domain/value-objects/severity.vo';
 import { ClaimStatus } from 'src/claims/domain/value-objects/claim-status.enum';
 
 export class CreateClaimUseCase {
@@ -16,7 +15,7 @@ export class CreateClaimUseCase {
       return new Damage(
         randomUUID(),
         damageDto.part,
-        Severity.create(damageDto.severity),
+        damageDto.severity,
         damageDto.imageUrl,
         damageDto.price,
       );

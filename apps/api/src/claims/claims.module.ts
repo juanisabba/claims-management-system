@@ -4,6 +4,8 @@ import { ClaimSchema } from './infrastructure/persistence/schemas/claim.schema';
 import { CreateClaimUseCase } from './application/use-cases/create-claim.use-case';
 import { AddDamageUseCase } from './application/use-cases/add-damage.use-case';
 import { TransitionStatusUseCase } from './application/use-cases/transition-status.use-case';
+import { UpdateClaimUseCase } from './application/use-cases/update-claim.use-case';
+import { GetClaimByIdUseCase } from './application/use-cases/get-claim-by-id.use-case';
 import { ClaimController } from './infrastructure/controllers/claim.controller';
 import { IClaimRepository } from './domain/repositories/claim.repository.interface';
 import { MongooseClaimRepository } from './infrastructure/persistence/mongo-claim.repository';
@@ -36,8 +38,24 @@ import { MongooseClaimRepository } from './infrastructure/persistence/mongo-clai
       useFactory: (repo: IClaimRepository) => new TransitionStatusUseCase(repo),
       inject: ['IClaimRepository'],
     },
+    {
+      provide: UpdateClaimUseCase,
+      useFactory: (repo: IClaimRepository) => new UpdateClaimUseCase(repo),
+      inject: ['IClaimRepository'],
+    },
+    {
+      provide: GetClaimByIdUseCase,
+      useFactory: (repo: IClaimRepository) => new GetClaimByIdUseCase(repo),
+      inject: ['IClaimRepository'],
+    },
   ],
   // Exportamos los use cases si otros módulos los necesitan
-  exports: [CreateClaimUseCase, AddDamageUseCase, TransitionStatusUseCase],
+  exports: [
+    CreateClaimUseCase,
+    AddDamageUseCase,
+    TransitionStatusUseCase,
+    UpdateClaimUseCase,
+    GetClaimByIdUseCase,
+  ],
 })
 export class ClaimsModule {}

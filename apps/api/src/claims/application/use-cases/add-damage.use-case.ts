@@ -4,7 +4,6 @@ import { AddDamageDto } from '../dtos/add-damage.dto';
 import { Claim } from 'src/claims/domain/entities/claim.entity';
 import { IClaimRepository } from 'src/claims/domain/repositories/claim.repository.interface';
 import { Damage } from 'src/claims/domain/entities/damage.entity';
-import { Severity } from 'src/claims/domain/value-objects/severity.vo';
 
 export class AddDamageUseCase {
   constructor(private readonly claimRepository: IClaimRepository) {}
@@ -20,7 +19,7 @@ export class AddDamageUseCase {
     const newDamage = new Damage(
       damageId,
       dto.part,
-      Severity.create(dto.severity),
+      dto.severity,
       dto.imageUrl,
       dto.price,
     );

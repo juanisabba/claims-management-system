@@ -1,8 +1,9 @@
 import { Schema, Document } from 'mongoose';
+import { SeverityEnum } from '../../../domain/value-objects/severity.enum';
 
 export interface DamageDocument extends Document {
   part: string;
-  severity: 'low' | 'mid' | 'high';
+  severity: SeverityEnum;
   imageUrl: string;
   price: number;
   score: number;
@@ -14,7 +15,7 @@ export const DamageSchema = new Schema<DamageDocument>(
     severity: {
       type: String,
       required: true,
-      enum: ['low', 'mid', 'high'],
+      enum: Object.values(SeverityEnum),
     },
     imageUrl: { type: String, required: true },
     price: { type: Number, required: true, min: 0.01 },

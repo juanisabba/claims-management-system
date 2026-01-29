@@ -1,17 +1,17 @@
-import { Severity } from '../value-objects/severity.vo';
+import { SeverityEnum } from '../value-objects/severity.enum';
 import { DomainError } from '../errors/domain-error';
 
 export class Damage {
   readonly id: string;
   readonly part: string;
-  readonly severity: Severity;
+  readonly severity: SeverityEnum;
   readonly imageUrl: string;
   readonly price: number;
 
   constructor(
     id: string,
     part: string,
-    severity: Severity,
+    severity: SeverityEnum,
     imageUrl: string,
     price: number,
   ) {
