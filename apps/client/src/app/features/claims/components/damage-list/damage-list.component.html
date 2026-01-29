@@ -1,0 +1,23 @@
+<div class="grid grid-cols-1 gap-4 mb-6">
+  @for (damage of damages(); track damage.id) {
+    <div
+      class="bg-white p-4 rounded-lg shadow border-l-4"
+      [ngClass]="{
+        'border-green-500': damage.severity === 'low',
+        'border-yellow-500': damage.severity === 'mid',
+        'border-red-500': damage.severity === 'high',
+      }"
+    >
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="font-bold">{{ damage.part }}</p>
+          <p class="text-sm text-gray-600">Severity: {{ damage.severity }}</p>
+          <p class="text-sm font-semibold">{{ damage.price | currency }}</p>
+        </div>
+        @if (damage.imageUrl) {
+          <img [src]="damage.imageUrl" alt="Damage image" class="w-16 h-16 object-cover rounded" />
+        }
+      </div>
+    </div>
+  }
+</div>

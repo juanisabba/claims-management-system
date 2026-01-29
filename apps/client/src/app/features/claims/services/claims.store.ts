@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Claim, Damage } from '../../../core/models/claim.model';
+import { ClaimStatus } from '../../../core/models/claim-status.enum';
 import { ClaimRepository } from '../../../core/repositories/claim.repository';
 
 @Injectable({
@@ -72,6 +73,28 @@ export class ClaimsStore {
       this.claim.set(updatedClaim);
     } catch (err) {
       this.error.set('Failed to delete damage');
+      console.error(err);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async updateStatus(status: ClaimStatus): Promise<void> {
+    const currentClaim = this.claim();
+    if (!currentClaim) {
+      this.error.set('No claim loaded');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    try {
+      const updatedClaim = await firstValueFrom(
+        this.repository.updateStatus(currentClaim.id, status),
+      );
+      this.claim.set(updatedClaim);
+    } catch (err) {
+      this.error.set('Failed to update status');
       console.error(err);
     } finally {
       this.isLoading.set(false);
