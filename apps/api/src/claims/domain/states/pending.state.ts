@@ -4,6 +4,7 @@ import { ClaimStatusState } from './claim-status.state';
 import { ClaimStatus } from '../value-objects/claim-status.enum';
 import { DomainError } from '../errors/domain-error';
 import { InReviewState } from './in-review.state';
+import { FinishedState } from './finished.state';
 
 export class PendingState implements ClaimStatusState {
   addDamage(claim: Claim, damage: Damage): void {
@@ -40,6 +41,14 @@ export class PendingState implements ClaimStatusState {
       claim.internalSetStatus(ClaimStatus.InReview, new InReviewState());
       return;
     }
+    if (status === ClaimStatus.Finished) {
+      claim.validateFinishRules();
+
+      // Si la validación anterior falla, lanza una excepción y no llega aquí
+      claim.internalSetStatus(ClaimStatus.Finished, new FinishedState());
+      return;
+    }
+
     throw new DomainError(`Cannot transition from Pending to ${status}.`);
   }
 }

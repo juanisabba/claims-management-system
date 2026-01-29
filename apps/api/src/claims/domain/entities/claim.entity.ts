@@ -92,13 +92,17 @@ export class Claim {
   }
 
   validateFinishRules(): void {
+    if (this.description.length <= 100) {
+      throw new DomainError(
+        'Claim description must exceed 100 characters to be finished.',
+      );
+    }
     const hasHighSeverity = this._damages.some(
       (d) => d.severity === SeverityEnum.HIGH,
     );
-
-    if (hasHighSeverity && this.description.length <= 100) {
+    if (!hasHighSeverity) {
       throw new DomainError(
-        'BR-06: High impact claims require a detailed description (over 100 characters) before closing.',
+        'Claim must have at least one high severity damage to be finished.',
       );
     }
   }
