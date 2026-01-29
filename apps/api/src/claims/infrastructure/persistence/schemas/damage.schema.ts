@@ -1,25 +1,26 @@
 import { Schema, Document } from 'mongoose';
-import { SeverityEnum } from '../../../domain/value-objects/severity.enum';
 
-export interface DamageDocument extends Document {
+export interface DamageDocument extends Document<string> {
+  _id: string;
   part: string;
-  severity: SeverityEnum;
+  severity: string;
   imageUrl: string;
   price: number;
-  score: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const DamageSchema = new Schema<DamageDocument>(
   {
+    _id: { type: String, required: true },
     part: { type: String, required: true },
-    severity: {
-      type: String,
-      required: true,
-      enum: Object.values(SeverityEnum),
-    },
+    severity: { type: String, required: true },
     imageUrl: { type: String, required: true },
-    price: { type: Number, required: true, min: 0.01 },
-    score: { type: Number, required: true, min: 1, max: 10 },
+    price: { type: Number, required: true },
   },
-  { timestamps: true },
+  {
+    // _id: false en las opciones evita que Mongoose intente sobrescribir
+    _id: false,
+    timestamps: true,
+  },
 );

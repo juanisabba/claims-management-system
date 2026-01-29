@@ -4,6 +4,8 @@ import { AddDamageDto } from '../dtos/add-damage.dto';
 import { Claim } from 'src/claims/domain/entities/claim.entity';
 import { IClaimRepository } from 'src/claims/domain/repositories/claim.repository.interface';
 import { Damage } from 'src/claims/domain/entities/damage.entity';
+import { ClaimStatus } from 'src/claims/domain/value-objects/claim-status.enum';
+import { DomainError } from 'src/claims/domain/errors/domain-error';
 
 export class AddDamageUseCase {
   constructor(private readonly claimRepository: IClaimRepository) {}
@@ -13,6 +15,10 @@ export class AddDamageUseCase {
 
     if (!claim) {
       throw new ClaimNotFoundException(`Claim with ID ${claimId} not found.`);
+    }
+
+    if (claim.status !== ClaimStatus.Pending) {
+      throw new DomainError('Damages can only be added when claim is Pending.');
     }
 
     const damageId = randomUUID();

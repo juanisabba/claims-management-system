@@ -37,28 +37,11 @@ export class InReviewState implements ClaimStatusState {
 
     // Transición a Finished con validación de guarda BR-06
     if (status === ClaimStatus.Finished) {
-      this.validateCompletionGuard(claim);
+      claim.validateFinishRules();
       claim.internalSetStatus(ClaimStatus.Finished, new FinishedState());
       return;
     }
 
     throw new DomainError(`Cannot transition from In Review to ${status}.`);
-  }
-
-  /**
-   * BR-06: Guard validation for Finishing.
-   * If any damage is "high", description must be > 100 chars.
-   */
-  private validateCompletionGuard(claim: Claim): void {
-    // Usamos el valor del enum directamente según tu implementación de Severity
-    const hasHighSeverity = claim.damages.some(
-      (d) => d.severity === SeverityEnum.HIGH,
-    );
-
-    if (hasHighSeverity && claim.description.length <= 100) {
-      throw new DomainError(
-        'BR-06: High impact claims require a detailed description (over 100 characters) before closing.',
-      );
-    }
   }
 }

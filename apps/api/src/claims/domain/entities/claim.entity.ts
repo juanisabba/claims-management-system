@@ -4,6 +4,8 @@ import { ClaimStatusState } from '../states/claim-status.state';
 import { PendingState } from '../states/pending.state';
 import { InReviewState } from '../states/in-review.state';
 import { FinishedState } from '../states/finished.state';
+import { SeverityEnum } from '../value-objects/severity.enum';
+import { DomainError } from '../errors/domain-error';
 
 export class Claim {
   readonly id: string;
@@ -87,5 +89,17 @@ export class Claim {
   internalSetStatus(status: ClaimStatus, state: ClaimStatusState): void {
     this.status = status;
     this.state = state;
+  }
+
+  validateFinishRules(): void {
+    const hasHighSeverity = this._damages.some(
+      (d) => d.severity === SeverityEnum.HIGH,
+    );
+
+    if (hasHighSeverity && this.description.length <= 100) {
+      throw new DomainError(
+        'BR-06: High impact claims require a detailed description (over 100 characters) before closing.',
+      );
+    }
   }
 }
