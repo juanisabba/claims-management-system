@@ -12,6 +12,8 @@ export class Claim {
   status: ClaimStatus;
   private _damages: Damage[];
   private state: ClaimStatusState;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
 
   constructor(
     id: string,
@@ -19,12 +21,16 @@ export class Claim {
     description: string,
     status: ClaimStatus = ClaimStatus.Pending,
     damages: Damage[] = [],
+    createdAt: Date = new Date(),
+    updatedAt: Date = new Date(),
   ) {
     this.id = id;
     this.title = title; // Initialize title
     this.description = description;
     this.status = status;
     this._damages = damages;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
     this.state = this.mapStatusToState(status);
   }
 

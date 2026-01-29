@@ -16,7 +16,6 @@ export class CreateClaimUseCase {
       return new Damage(
         randomUUID(),
         damageDto.part,
-        damageDto.description,
         Severity.create(damageDto.severity),
         damageDto.imageUrl,
         damageDto.price,

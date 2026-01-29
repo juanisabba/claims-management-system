@@ -6,7 +6,6 @@ import { Severity } from '../../../domain/value-objects/severity.vo';
 interface RawDamage {
   _id: string;
   part: string;
-  description: string;
   severity: string;
   imageUrl: string;
   price: number;
@@ -19,6 +18,8 @@ export interface RawClaim {
   status: string;
   damages: RawDamage[];
   totalAmount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class ClaimMapper {
@@ -28,7 +29,6 @@ export class ClaimMapper {
         new Damage(
           damage._id,
           damage.part,
-          damage.description,
           Severity.create(damage.severity),
           damage.imageUrl,
           damage.price,
@@ -41,6 +41,8 @@ export class ClaimMapper {
       raw.description,
       raw.status as ClaimStatus,
       damages,
+      raw.createdAt,
+      raw.updatedAt,
     );
   }
 
@@ -48,7 +50,6 @@ export class ClaimMapper {
     const damages = claim.damages.map((damage) => ({
       _id: damage.id,
       part: damage.part,
-      description: damage.description,
       severity: damage.severity.value,
       imageUrl: damage.imageUrl,
       price: damage.price,
@@ -61,6 +62,27 @@ export class ClaimMapper {
       status: claim.status,
       damages: damages,
       totalAmount: claim.totalAmount,
+      createdAt: claim.createdAt,
+      updatedAt: claim.updatedAt,
+    };
+  }
+
+  static toResponse(claim: Claim) {
+    return {
+      id: claim.id,
+      title: claim.title,
+      description: claim.description,
+      status: claim.status,
+      totalAmount: claim.totalAmount,
+      damages: claim.damages.map((damage) => ({
+        id: damage.id,
+        part: damage.part,
+        severity: damage.severity.value,
+        imageUrl: damage.imageUrl,
+        price: damage.price,
+      })),
+      createdAt: claim.createdAt,
+      updatedAt: claim.updatedAt,
     };
   }
 }

@@ -20,7 +20,6 @@ export class AddDamageUseCase {
     const newDamage = new Damage(
       damageId,
       dto.part,
-      dto.description,
       Severity.create(dto.severity),
       dto.imageUrl,
       dto.price,

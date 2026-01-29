@@ -4,7 +4,6 @@ import { DomainError } from '../errors/domain-error';
 export class Damage {
   readonly id: string;
   readonly part: string;
-  readonly description: string;
   readonly severity: Severity;
   readonly imageUrl: string;
   readonly price: number;
@@ -12,7 +11,6 @@ export class Damage {
   constructor(
     id: string,
     part: string,
-    description: string,
     severity: Severity,
     imageUrl: string,
     price: number,
@@ -31,7 +29,6 @@ export class Damage {
 
     this.id = id;
     this.part = part;
-    this.description = description;
     this.severity = severity;
     this.imageUrl = imageUrl;
     this.price = price;

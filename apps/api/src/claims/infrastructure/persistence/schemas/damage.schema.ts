@@ -2,7 +2,6 @@ import { Schema, Document } from 'mongoose';
 
 export interface DamageDocument extends Document {
   part: string;
-  description: string;
   severity: 'low' | 'mid' | 'high';
   imageUrl: string;
   price: number;
@@ -12,7 +11,6 @@ export interface DamageDocument extends Document {
 export const DamageSchema = new Schema<DamageDocument>(
   {
     part: { type: String, required: true },
-    description: { type: String, required: true },
     severity: {
       type: String,
       required: true,
