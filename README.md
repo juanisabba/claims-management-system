@@ -35,7 +35,7 @@ The fastest way to run the entire ecosystem (Database, API, and Frontend) is usi
 1. Clone the repository:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/juanisabba/claims-management-system.git
 cd claims-management-system
 ```
 
@@ -87,7 +87,6 @@ The project maintains high standards of data integrity through automated testing
 ### Run Unit Tests
 
 ```bash
-# Backend
 pnpm --filter api test:cov
 ```
 
@@ -125,8 +124,9 @@ This project was built to exceed all mandatory technical specifications:
 
 **Quality & Testing:**
 
-- **Coverage >95%**: Backend infrastructure and domain layers achieve 100% unit test coverage, surpassing the mandatory 95% threshold.
+- **Coverage 100% (Statements)**: Backend infrastructure and domain layers achieve **100% unit test coverage (Stmts)**, significantly surpassing the mandatory 95% threshold.
 - **Integration Tests**: E2E tests validate that server-side total amount calculations accurately reflect the sum of individual damages.
+- **CI/CD Pipeline**: Automated testing on every push to `main` ensures code quality with coverage validation (>95% unit tests) and integration test execution to catch regressions early.
 
 ## 🏛 Design & Architecture Documentation
 
