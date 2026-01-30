@@ -1,9 +1,9 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
 import { MongooseClaimRepository } from './mongo-claim.repository';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimMapper } from './mappers/claim.mapper';
 import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
-import { Model } from 'mongoose';
-import { ClaimDocument } from './schemas/claim.schema';
 
 describe('MongooseClaimRepository', () => {
   let repository: MongooseClaimRepository;
@@ -16,7 +16,7 @@ describe('MongooseClaimRepository', () => {
     countDocuments: jest.Mock;
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockModel = {
       findById: jest.fn(),
       find: jest.fn(),
@@ -25,9 +25,18 @@ describe('MongooseClaimRepository', () => {
       findByIdAndUpdate: jest.fn(),
       countDocuments: jest.fn(),
     };
-    repository = new MongooseClaimRepository(
-      mockModel as unknown as Model<ClaimDocument>,
-    );
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        MongooseClaimRepository,
+        {
+          provide: getModelToken('Claim'),
+          useValue: mockModel,
+        },
+      ],
+    }).compile();
+
+    repository = module.get<MongooseClaimRepository>(MongooseClaimRepository);
   });
 
   const claim = new Claim('c1', 't', 'd', ClaimStatus.Pending, []);
@@ -187,6 +196,34 @@ describe('MongooseClaimRepository', () => {
         title: 1,
         totalAmount: 1,
       });
+    });
+
+    it('should handle partial pagination filters in findAll', async () => {
+      const mockExecFind = jest.fn().mockResolvedValue([]);
+      const mockExecCount = jest.fn().mockResolvedValue(0);
+
+      mockModel.find.mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              lean: jest.fn().mockReturnValue({
+                exec: mockExecFind,
+              }),
+            }),
+          }),
+        }),
+      } as unknown);
+
+      mockModel.countDocuments.mockReturnValue({
+        exec: mockExecCount,
+      } as unknown);
+
+      // Only limit
+      await repository.findAll({ limit: 5 });
+      // Only offset
+      await repository.findAll({ offset: 10 });
+
+      expect(mockModel.find).toHaveBeenCalled();
     });
 
     it('should handle multiple claims in findAll', async () => {

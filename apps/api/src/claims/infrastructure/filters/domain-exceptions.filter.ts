@@ -20,15 +20,15 @@ export class DomainExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-      message = exception.message;
+      message = exception.message || 'Internal server error';
     } else if (exception instanceof DomainError) {
       status = HttpStatus.BAD_REQUEST;
-      message = exception.message;
+      message = exception.message || 'Internal server error';
     } else if (exception instanceof ClaimNotFoundException) {
       status = HttpStatus.NOT_FOUND;
-      message = exception.message;
+      message = exception.message || 'Internal server error';
     } else if (exception instanceof Error) {
-      message = exception.message;
+      message = exception.message || 'Internal server error';
     }
 
     response.status(status).json({

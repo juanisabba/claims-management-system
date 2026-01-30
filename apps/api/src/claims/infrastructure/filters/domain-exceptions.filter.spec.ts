@@ -84,12 +84,68 @@ describe('DomainExceptionFilter', () => {
 
   it('should use default message for unexpected errors without message', () => {
     const error = new Error();
-    delete (error as unknown as { message?: string }).message;
+    Object.defineProperty(error, 'message', { get: () => '' });
 
     filter.catch(error, mockArgumentsHost as ArgumentsHost);
 
     expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        message: 'Internal server error',
+      }),
+    );
+  });
+
+  it('should handle HttpException with empty message', () => {
+    const error = new HttpException('', HttpStatus.BAD_GATEWAY);
+
+    filter.catch(error, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.BAD_GATEWAY);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Internal server error',
+      }),
+    );
+  });
+
+  it('should handle DomainError with empty message', () => {
+    const error = new DomainError('');
+
+    filter.catch(error, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Internal server error',
+      }),
+    );
+  });
+
+  it('should handle ClaimNotFoundException with empty message', () => {
+    const error = new ClaimNotFoundException('temp');
+    Object.defineProperty(error, 'message', { get: () => '' });
+
+    filter.catch(error, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Internal server error',
+      }),
+    );
+  });
+
+  it('should handle a non-error object and return 500', () => {
+    const error = 'Something went wrong';
+
+    filter.catch(error, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
       }),
     );

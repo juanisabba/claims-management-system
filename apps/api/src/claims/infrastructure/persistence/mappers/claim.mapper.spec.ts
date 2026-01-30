@@ -78,6 +78,17 @@ describe('ClaimMapper', () => {
       const result = ClaimMapper.toDomain(rawWithNullDamages);
       expect(result.damages).toEqual([]);
     });
+
+    it('should use current date if createdAt or updatedAt are missing', () => {
+      const rawWithoutDates: RawClaim = {
+        ...rawClaim,
+        createdAt: undefined,
+        updatedAt: undefined,
+      };
+      const result = ClaimMapper.toDomain(rawWithoutDates);
+      expect(result.createdAt).toBeInstanceOf(Date);
+      expect(result.updatedAt).toBeInstanceOf(Date);
+    });
   });
 
   describe('toPersistence', () => {
@@ -121,6 +132,18 @@ describe('ClaimMapper', () => {
 
       expect(result.damages).toHaveLength(0);
       expect(result.totalAmount).toBe(0);
+    });
+  });
+
+  describe('toSummaryResponse', () => {
+    it('should map RawClaim to summary response DTO', () => {
+      const result = ClaimMapper.toSummaryResponse(rawClaim);
+
+      expect(result.id).toBe(rawClaim._id);
+      expect(result.title).toBe(rawClaim.title);
+      expect(result.description).toBe(rawClaim.description);
+      expect(result.status).toBe(rawClaim.status);
+      expect(result.totalAmount).toBe(rawClaim.totalAmount);
     });
   });
 });
