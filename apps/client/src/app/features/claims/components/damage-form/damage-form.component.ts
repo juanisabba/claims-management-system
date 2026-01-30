@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Damage, Severity } from '../../../../core/models/claim.model';
 import { ClaimStatus } from '../../../../core/models/claim-status.enum';
+import { NoWhitespaceValidator } from '../../../../shared/validators/whitespace.validator';
 
 @Component({
   selector: 'app-damage-form',
@@ -21,9 +22,9 @@ export class DamageFormComponent {
   severities = Object.values(Severity);
 
   form = this.fb.nonNullable.group({
-    part: ['', Validators.required],
+    part: ['', [Validators.required, NoWhitespaceValidator()]],
     severity: [Severity.LOW, Validators.required],
-    price: [0, [Validators.required, Validators.min(0)]],
+    price: [0, [Validators.required, Validators.min(0.01)]],
     imageUrl: ['', [Validators.required, Validators.pattern(/https?:\/\/.+/)]],
   });
 

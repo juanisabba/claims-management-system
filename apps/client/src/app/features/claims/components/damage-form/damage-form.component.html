@@ -2,17 +2,24 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="md:col-span-2">
-        <label for="part" class="block text-sm font-medium text-gray-700">Description</label>
+        <label for="part" class="block text-sm font-medium text-gray-700">Part</label>
         <input
           id="part"
           type="text"
           formControlName="part"
           [attr.disabled]="isDisabled() ? true : null"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+          [class.border-red-500]="form.get('part')?.touched && form.get('part')?.invalid"
           placeholder="e.g. Front Bumper"
         />
         @if (form.get('part')?.touched && form.get('part')?.invalid) {
-          <p class="mt-1 text-xs text-red-600">Description is required.</p>
+          <p class="mt-1 text-xs text-red-600">
+            @if (form.get('part')?.errors?.['whitespace']) {
+              Part cannot be only whitespace.
+            } @else {
+              Part is required.
+            }
+          </p>
         }
       </div>
 
@@ -38,9 +45,10 @@
           formControlName="price"
           [attr.disabled]="isDisabled() ? true : null"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+          [class.border-red-500]="form.get('price')?.touched && form.get('price')?.invalid"
         />
         @if (form.get('price')?.touched && form.get('price')?.invalid) {
-          <p class="mt-1 text-xs text-red-600">Price is required (min 0).</p>
+          <p class="mt-1 text-xs text-red-600">Price must be greater than 0.</p>
         }
       </div>
 

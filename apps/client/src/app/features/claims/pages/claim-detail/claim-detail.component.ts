@@ -8,6 +8,7 @@ import { DamageFormComponent } from '../../components/damage-form/damage-form.co
 import { ClaimStatus } from '../../../../core/models/claim-status.enum';
 import { Damage, Claim, Severity } from '../../../../core/models/claim.model';
 import { ModalComponent } from '../../components/modal/modal.component';
+import { NoWhitespaceValidator } from '../../../../shared/validators/whitespace.validator';
 
 @Component({
   selector: 'app-claim-detail',
@@ -32,8 +33,8 @@ export class ClaimDetailComponent implements OnInit {
 
   isEditClaimModalOpen = signal(false);
   claimForm = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
-    description: ['', [Validators.required, Validators.minLength(10)]],
+    title: ['', [Validators.required, Validators.minLength(3), NoWhitespaceValidator()]],
+    description: ['', [Validators.required, Validators.minLength(10), NoWhitespaceValidator()]],
   });
 
   isStatusModalOpen = signal(false);

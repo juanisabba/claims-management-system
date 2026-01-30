@@ -139,10 +139,19 @@
           id="title"
           formControlName="title"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+          [class.border-red-500]="
+            claimForm.get('title')?.touched && claimForm.get('title')?.invalid
+          "
           placeholder="Enter claim title"
         />
         @if (claimForm.get('title')?.touched && claimForm.get('title')?.invalid) {
-          <p class="mt-1 text-xs text-red-600">Title is required (min 3 chars).</p>
+          <p class="mt-1 text-xs text-red-600">
+            @if (claimForm.get('title')?.errors?.['whitespace']) {
+              Title cannot be only whitespace.
+            } @else {
+              Title is required (min 3 chars).
+            }
+          </p>
         }
       </div>
 
@@ -153,10 +162,19 @@
           formControlName="description"
           rows="3"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+          [class.border-red-500]="
+            claimForm.get('description')?.touched && claimForm.get('description')?.invalid
+          "
           placeholder="Enter claim description"
         ></textarea>
         @if (claimForm.get('description')?.touched && claimForm.get('description')?.invalid) {
-          <p class="mt-1 text-xs text-red-600">Description is required (min 10 chars).</p>
+          <p class="mt-1 text-xs text-red-600">
+            @if (claimForm.get('description')?.errors?.['whitespace']) {
+              Description cannot be only whitespace.
+            } @else {
+              Description is required (min 10 chars).
+            }
+          </p>
         }
       </div>
 

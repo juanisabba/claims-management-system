@@ -135,6 +135,11 @@ export class ClaimsStore {
   }
 
   async createClaim(data: { title: string; description: string }): Promise<void> {
+    if (!data.title?.trim() || !data.description?.trim()) {
+      this.error.set('Title and description cannot be empty or only whitespace');
+      return;
+    }
+
     this.isLoading.set(true);
     this.error.set(null);
     try {
@@ -149,6 +154,11 @@ export class ClaimsStore {
   }
 
   async updateClaim(id: string, data: { title: string; description: string }): Promise<void> {
+    if (!data.title?.trim() || !data.description?.trim()) {
+      this.error.set('Title and description cannot be empty or only whitespace');
+      return;
+    }
+
     this.isLoading.set(true);
     this.error.set(null);
     try {
@@ -177,6 +187,11 @@ export class ClaimsStore {
       return;
     }
 
+    if (!damage.part?.trim() || damage.price <= 0) {
+      this.error.set('Damage part cannot be empty and price must be greater than 0');
+      return;
+    }
+
     this.isLoading.set(true);
     this.error.set(null);
     try {
@@ -200,6 +215,14 @@ export class ClaimsStore {
 
     if (currentClaim.status !== ClaimStatus.Pending) {
       this.error.set('Damages can only be updated for claims in Pending status');
+      return;
+    }
+
+    if (
+      (damage.part !== undefined && !damage.part?.trim()) ||
+      (damage.price !== undefined && damage.price <= 0)
+    ) {
+      this.error.set('Damage part cannot be empty and price must be greater than 0');
       return;
     }
 

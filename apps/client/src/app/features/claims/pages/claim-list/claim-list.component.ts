@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ClaimsStore } from '../../services/claims.store';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { Claim } from '../../../../core/models/claim.model';
+import { NoWhitespaceValidator } from '../../../../shared/validators/whitespace.validator';
 
 @Component({
   selector: 'app-claim-list',
@@ -22,8 +23,8 @@ export class ClaimListComponent implements OnInit {
   editingClaim = signal<Claim | null>(null);
 
   claimForm = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
-    description: ['', [Validators.required, Validators.minLength(10)]],
+    title: ['', [Validators.required, Validators.minLength(3), NoWhitespaceValidator()]],
+    description: ['', [Validators.required, Validators.minLength(10), NoWhitespaceValidator()]],
   });
 
   ngOnInit(): void {

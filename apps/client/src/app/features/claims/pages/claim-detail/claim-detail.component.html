@@ -124,6 +124,9 @@
           <div class="prose prose-blue max-w-none text-gray-600 leading-relaxed">
             {{ claim.description }}
           </div>
+          <div class="pt-4 prose prose-blue max-w-none text-gray-600 leading-relaxed">
+            <b>Claim ID:</b> {{ claim.id }}
+          </div>
         </div>
 
         <!-- Damages List Section -->
@@ -241,10 +244,6 @@
 
         <!-- Metadata -->
         <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-500 space-y-2">
-          <div class="flex justify-between">
-            <span class="font-bold">Claim ID:</span>
-            <span class="font-mono">{{ claim.id }}</span>
-          </div>
           <div class="flex justify-between">
             <span class="font-bold">Created:</span>
             <span>{{ claim.createdAt | date: 'medium' }}</span>
