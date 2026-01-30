@@ -12,6 +12,7 @@ export class ClaimsStore {
 
   // State
   readonly claim = signal<Claim | null>(null);
+  readonly allClaims = signal<Claim[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
@@ -23,7 +24,28 @@ export class ClaimsStore {
   });
 
   // Methods
-  async loadClaim(id: string): Promise<void> {
+  async loadAllClaims(): Promise<void> {
+    this.isLoading.set(true);
+    this.error.set(null);
+    try {
+      const claims = await firstValueFrom(this.repository.getClaims());
+      this.allClaims.set(claims);
+    } catch (err) {
+      this.error.set('Failed to load claims');
+      this.allClaims.set([]);
+      console.error(err);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async loadClaim(id: string | null): Promise<void> {
+    if (!id) {
+      this.claim.set(null);
+      this.error.set('No claim ID provided');
+      return;
+    }
+
     this.isLoading.set(true);
     this.error.set(null);
     try {
@@ -31,6 +53,7 @@ export class ClaimsStore {
       this.claim.set(claim);
     } catch (err) {
       this.error.set('Failed to load claim');
+      this.claim.set(null);
       console.error(err);
     } finally {
       this.isLoading.set(false);
