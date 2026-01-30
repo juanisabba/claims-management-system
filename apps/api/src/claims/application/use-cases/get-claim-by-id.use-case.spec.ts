@@ -12,7 +12,7 @@ describe('GetClaimByIdUseCase', () => {
     findByIdSpy = jest.fn();
     repository = {
       findById: findByIdSpy,
-    } as any;
+    } as unknown as jest.Mocked<IClaimRepository>;
     useCase = new GetClaimByIdUseCase(repository);
   });
 

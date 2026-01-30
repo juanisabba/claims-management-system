@@ -19,7 +19,7 @@ describe('AddDamageUseCase', () => {
       findAll: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
-    } as any;
+    } as unknown as jest.Mocked<IClaimRepository>;
     useCase = new AddDamageUseCase(repository);
   });
 

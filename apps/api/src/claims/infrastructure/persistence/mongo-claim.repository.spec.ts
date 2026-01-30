@@ -2,10 +2,19 @@ import { MongooseClaimRepository } from './mongo-claim.repository';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimMapper } from './mappers/claim.mapper';
 import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
+import { Model } from 'mongoose';
+import { ClaimDocument } from './schemas/claim.schema';
 
 describe('MongooseClaimRepository', () => {
   let repository: MongooseClaimRepository;
-  let mockModel: any;
+  let mockModel: {
+    findById: jest.Mock;
+    find: jest.Mock;
+    updateOne: jest.Mock;
+    deleteOne: jest.Mock;
+    findByIdAndUpdate: jest.Mock;
+    countDocuments: jest.Mock;
+  };
 
   beforeEach(() => {
     mockModel = {
@@ -15,15 +24,17 @@ describe('MongooseClaimRepository', () => {
       deleteOne: jest.fn(),
       findByIdAndUpdate: jest.fn(),
       countDocuments: jest.fn(),
-    } as any;
-    repository = new MongooseClaimRepository(mockModel);
+    };
+    repository = new MongooseClaimRepository(
+      mockModel as unknown as Model<ClaimDocument>,
+    );
   });
 
   const claim = new Claim('c1', 't', 'd', ClaimStatus.Pending, []);
 
   it('should save a claim', async () => {
     const mockExec = jest.fn().mockResolvedValue({});
-    mockModel.updateOne.mockReturnValue({ exec: mockExec } as any);
+    mockModel.updateOne.mockReturnValue({ exec: mockExec } as unknown);
 
     await repository.save(claim);
 
@@ -38,7 +49,7 @@ describe('MongooseClaimRepository', () => {
       lean: jest.fn().mockReturnValue({
         exec: mockExec,
       }),
-    } as any);
+    } as unknown);
 
     const result = await repository.findById('c1');
 
@@ -52,7 +63,7 @@ describe('MongooseClaimRepository', () => {
       lean: jest.fn().mockReturnValue({
         exec: mockExec,
       }),
-    } as any);
+    } as unknown);
 
     const result = await repository.findById('non-existent');
 
@@ -72,16 +83,16 @@ describe('MongooseClaimRepository', () => {
           }),
         }),
       }),
-    } as any);
+    } as unknown);
 
     mockModel.countDocuments.mockReturnValue({
       exec: mockExecCount,
-    } as any);
+    } as unknown);
 
     const result = await repository.findAll({ limit: 10, offset: 0 });
 
     expect(result.data).toHaveLength(1);
-    expect(result.data[0]._id).toBe('c1');
+    expect(result.data[0].id).toBe('c1');
     expect(result.total).toBe(1);
     expect(result.limit).toBe(10);
     expect(result.offset).toBe(0);
@@ -89,7 +100,7 @@ describe('MongooseClaimRepository', () => {
 
   it('should update a claim', async () => {
     const mockExec = jest.fn().mockResolvedValue({});
-    mockModel.updateOne.mockReturnValue({ exec: mockExec } as any);
+    mockModel.updateOne.mockReturnValue({ exec: mockExec } as unknown);
 
     await repository.update(claim);
 
@@ -98,7 +109,7 @@ describe('MongooseClaimRepository', () => {
 
   it('should delete a claim', async () => {
     const mockExec = jest.fn().mockResolvedValue({});
-    mockModel.deleteOne.mockReturnValue({ exec: mockExec } as any);
+    mockModel.deleteOne.mockReturnValue({ exec: mockExec } as unknown);
 
     await repository.delete('c1');
 
@@ -119,11 +130,11 @@ describe('MongooseClaimRepository', () => {
             }),
           }),
         }),
-      } as any);
+      } as unknown);
 
       mockModel.countDocuments.mockReturnValue({
         exec: mockExecCount,
-      } as any);
+      } as unknown);
 
       const result = await repository.findAll({});
 
@@ -154,11 +165,11 @@ describe('MongooseClaimRepository', () => {
             }),
           }),
         }),
-      } as any);
+      } as unknown);
 
       mockModel.countDocuments.mockReturnValue({
         exec: mockExecCount,
-      } as any);
+      } as unknown);
 
       const filters = { status: ClaimStatus.Pending };
       const result = await repository.findAll(filters);
@@ -188,17 +199,17 @@ describe('MongooseClaimRepository', () => {
             }),
           }),
         }),
-      } as any);
+      } as unknown);
 
       mockModel.countDocuments.mockReturnValue({
         exec: mockExecCount,
-      } as any);
+      } as unknown);
 
       const result = await repository.findAll({});
 
       expect(result.data).toHaveLength(2);
-      expect(result.data[0]._id).toBe('c1');
-      expect(result.data[1]._id).toBe('c2');
+      expect(result.data[0].id).toBe('c1');
+      expect(result.data[1].id).toBe('c2');
       expect(result.total).toBe(2);
     });
   });

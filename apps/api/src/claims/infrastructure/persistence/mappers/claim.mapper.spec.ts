@@ -71,9 +71,9 @@ describe('ClaimMapper', () => {
     });
 
     it('should handle null/undefined damages in RawClaim', () => {
-      const rawWithNullDamages: any = {
+      const rawWithNullDamages = {
         ...rawClaim,
-        damages: null,
+        damages: null as unknown as undefined,
       };
       const result = ClaimMapper.toDomain(rawWithNullDamages);
       expect(result.damages).toEqual([]);
@@ -87,8 +87,8 @@ describe('ClaimMapper', () => {
       expect(result._id).toBe(claimEntity.id);
       expect(result.title).toBe(claimEntity.title);
       expect(result.status).toBe(claimEntity.status);
-      expect(result.damages).toHaveLength(1);
-      expect(result.damages[0]._id).toBe(damageEntity.id);
+      expect(result.damages!).toHaveLength(1);
+      expect(result.damages![0]._id).toBe(damageEntity.id);
       expect(result.totalAmount).toBe(claimEntity.totalAmount);
     });
 
@@ -96,7 +96,7 @@ describe('ClaimMapper', () => {
       const emptyClaim = new Claim('c2', 't', 'd', ClaimStatus.Pending, []);
       const result = ClaimMapper.toPersistence(emptyClaim);
 
-      expect(result.damages).toHaveLength(0);
+      expect(result.damages!).toHaveLength(0);
       expect(result.totalAmount).toBe(0);
     });
   });

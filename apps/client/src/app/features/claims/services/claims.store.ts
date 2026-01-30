@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Claim, Damage, Severity } from '../../../core/models/claim.model';
+import { Claim, ClaimSummary, Damage, Severity } from '../../../core/models/claim.model';
 import { ClaimStatus } from '../../../core/models/claim-status.enum';
 import { ClaimRepository } from '../../../core/repositories/claim.repository';
 import { ToastService } from '../../../core/services/toast.service';
@@ -15,7 +15,7 @@ export class ClaimsStore {
   // State
   readonly claim = signal<Claim | null>(null);
   readonly currentClaim = computed(() => this.claim());
-  readonly allClaims = signal<Claim[]>([]);
+  readonly allClaims = signal<ClaimSummary[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 

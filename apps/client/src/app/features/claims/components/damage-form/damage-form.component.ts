@@ -16,7 +16,7 @@ export class DamageFormComponent {
 
   claimStatus = input.required<ClaimStatus>();
   initialData = input<Damage | null>(null);
-  submitDamage = output<any>();
+  submitDamage = output<Omit<Damage, 'id'>>();
   cancel = output<void>();
 
   severities = Object.values(Severity);

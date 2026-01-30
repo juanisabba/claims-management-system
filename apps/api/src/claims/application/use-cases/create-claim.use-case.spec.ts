@@ -17,7 +17,7 @@ describe('CreateClaimUseCase', () => {
       findAll: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
-    } as any;
+    } as unknown as jest.Mocked<IClaimRepository>;
     useCase = new CreateClaimUseCase(repository);
   });
 
@@ -58,10 +58,10 @@ describe('CreateClaimUseCase', () => {
   });
 
   it('should handle null damages in dto', async () => {
-    const dto: any = {
+    const dto = {
       title: 'Test Claim',
       description: 'Test Description',
-      damages: null,
+      damages: null as unknown as [],
     };
 
     const result = await useCase.execute(dto);

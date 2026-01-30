@@ -107,7 +107,7 @@ export class ClaimDetailComponent implements OnInit {
     this.editingDamage.set(null);
   }
 
-  async onDamageSubmit(damageData: any) {
+  async onDamageSubmit(damageData: Omit<Damage, 'id'>) {
     if (this.store.claim()?.status !== ClaimStatus.Pending) {
       this.closeDamageModal();
       return;

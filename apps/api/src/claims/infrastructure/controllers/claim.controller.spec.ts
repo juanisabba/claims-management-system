@@ -8,6 +8,7 @@ import { RemoveDamageUseCase } from 'src/claims/application/use-cases/remove-dam
 import { IClaimRepository } from '../../domain/repositories/claim.repository.interface';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
+import { SeverityEnum } from '../../domain/value-objects/severity.enum';
 
 describe('ClaimController', () => {
   let controller: ClaimController;
@@ -20,13 +21,27 @@ describe('ClaimController', () => {
   let repository: jest.Mocked<IClaimRepository>;
 
   beforeEach(() => {
-    createClaimUseCase = { execute: jest.fn() } as any;
-    addDamageUseCase = { execute: jest.fn() } as any;
-    updateClaimUseCase = { execute: jest.fn() } as any;
-    getClaimByIdUseCase = { execute: jest.fn() } as any;
-    updateDamageUseCase = { execute: jest.fn() } as any;
-    removeDamageUseCase = { execute: jest.fn() } as any;
-    repository = { findAll: jest.fn() } as any;
+    createClaimUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<CreateClaimUseCase>;
+    addDamageUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<AddDamageUseCase>;
+    updateClaimUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<UpdateClaimUseCase>;
+    getClaimByIdUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<GetClaimByIdUseCase>;
+    updateDamageUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<UpdateDamageUseCase>;
+    removeDamageUseCase = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<RemoveDamageUseCase>;
+    repository = {
+      findAll: jest.fn(),
+    } as unknown as jest.Mocked<IClaimRepository>;
 
     controller = new ClaimController(
       createClaimUseCase,
@@ -53,13 +68,20 @@ describe('ClaimController', () => {
 
   it('should add damage', async () => {
     addDamageUseCase.execute.mockResolvedValue(claim);
-    const result = await controller.addDamage('c1', {} as any);
+    const result = await controller.addDamage('c1', {
+      part: 'p',
+      severity: SeverityEnum.LOW,
+      imageUrl: 'http://i',
+      price: 10,
+    });
     expect(result.id).toBe('c1');
   });
 
   it('should update damage', async () => {
     updateDamageUseCase.execute.mockResolvedValue(claim);
-    const result = await controller.updateDamage('c1', 'd1', {} as any);
+    const result = await controller.updateDamage('c1', 'd1', {
+      part: 'p2',
+    });
     expect(result.id).toBe('c1');
   });
 
@@ -71,7 +93,9 @@ describe('ClaimController', () => {
 
   it('should update claim', async () => {
     updateClaimUseCase.execute.mockResolvedValue(claim);
-    const result = await controller.update('c1', {} as any);
+    const result = await controller.update('c1', {
+      title: 't2',
+    });
     expect(result.id).toBe('c1');
   });
 
@@ -79,10 +103,10 @@ describe('ClaimController', () => {
     repository.findAll.mockResolvedValue({
       data: [
         {
-          _id: 'c1',
+          id: 'c1',
           title: 't',
           description: 'd',
-          status: 'Pending',
+          status: ClaimStatus.Pending,
           totalAmount: 0,
         },
       ],
@@ -119,10 +143,10 @@ describe('ClaimController', () => {
       {
         id: 'd1',
         part: 'p1',
-        severity: 'low',
+        severity: SeverityEnum.LOW,
         imageUrl: 'i1',
         price: 10,
-      } as any,
+      },
     ]);
     getClaimByIdUseCase.execute.mockResolvedValue(claimWithDamages);
     const result = await controller.findDamages('c1', '5', '0');

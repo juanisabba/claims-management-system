@@ -5,8 +5,11 @@ import { ClaimNotFoundException } from '../../application/exceptions/claim-not-f
 
 describe('DomainExceptionFilter', () => {
   let filter: DomainExceptionFilter;
-  let mockArgumentsHost: any;
-  let mockResponse: any;
+  let mockArgumentsHost: Partial<ArgumentsHost>;
+  let mockResponse: {
+    status: jest.Mock;
+    json: jest.Mock;
+  };
 
   beforeEach(() => {
     filter = new DomainExceptionFilter();
@@ -81,7 +84,7 @@ describe('DomainExceptionFilter', () => {
 
   it('should use default message for unexpected errors without message', () => {
     const error = new Error();
-    delete (error as any).message;
+    delete (error as unknown as { message?: string }).message;
 
     filter.catch(error, mockArgumentsHost as ArgumentsHost);
 

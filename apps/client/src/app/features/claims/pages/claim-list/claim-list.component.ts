@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClaimsStore } from '../../services/claims.store';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { Claim } from '../../../../core/models/claim.model';
+import { Claim, ClaimSummary } from '../../../../core/models/claim.model';
 import { NoWhitespaceValidator } from '../../../../shared/validators/whitespace.validator';
 
 @Component({
@@ -21,7 +21,7 @@ export class ClaimListComponent implements OnInit {
   protected readonly Math = Math;
 
   isModalOpen = signal(false);
-  editingClaim = signal<Claim | null>(null);
+  editingClaim = signal<ClaimSummary | null>(null);
 
   claimForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), NoWhitespaceValidator()]],
@@ -54,7 +54,7 @@ export class ClaimListComponent implements OnInit {
     this.isModalOpen.set(true);
   }
 
-  openEditModal(claim: Claim) {
+  openEditModal(claim: ClaimSummary) {
     this.editingClaim.set(claim);
     this.claimForm.patchValue({
       title: claim.title,

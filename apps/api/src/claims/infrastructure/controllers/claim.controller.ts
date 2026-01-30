@@ -86,14 +86,10 @@ export class ClaimController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
-    const result = await this.claimRepository.findAll({
+    return this.claimRepository.findAll({
       limit: limit ? parseInt(limit, 10) : 10,
       offset: offset ? parseInt(offset, 10) : 0,
     });
-    return {
-      ...result,
-      data: result.data.map((doc) => ClaimMapper.toSummaryResponse(doc)),
-    };
   }
 
   @Get(':id/damages')

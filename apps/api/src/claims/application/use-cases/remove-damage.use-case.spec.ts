@@ -17,7 +17,7 @@ describe('RemoveDamageUseCase', () => {
     repository = {
       findById: jest.fn(),
       save: saveSpy,
-    } as any;
+    } as unknown as jest.Mocked<IClaimRepository>;
     useCase = new RemoveDamageUseCase(repository);
   });
 

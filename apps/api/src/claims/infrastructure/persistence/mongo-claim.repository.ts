@@ -6,8 +6,10 @@ import {
   IClaimRepository,
   ClaimFilters,
   PaginatedResult,
+  ClaimSummary,
 } from '../../domain/repositories/claim.repository.interface';
 import { Claim } from '../../domain/entities/claim.entity';
+import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
 import { ClaimMapper, RawClaim } from './mappers/claim.mapper';
 
 @Injectable()
@@ -33,7 +35,7 @@ export class MongooseClaimRepository implements IClaimRepository {
     return ClaimMapper.toDomain(rawClaim);
   }
 
-  async findAll(filters: ClaimFilters): Promise<PaginatedResult<any>> {
+  async findAll(filters: ClaimFilters): Promise<PaginatedResult<ClaimSummary>> {
     const { limit = 10, offset = 0, ...queryFilters } = filters;
 
     const [documents, total] = await Promise.all([
@@ -52,7 +54,16 @@ export class MongooseClaimRepository implements IClaimRepository {
     ]);
 
     return {
-      data: documents,
+      data: documents.map((doc) => {
+        const raw = doc as unknown as RawClaim;
+        return {
+          id: raw._id.toString(),
+          title: raw.title,
+          description: raw.description,
+          status: raw.status as ClaimStatus,
+          totalAmount: raw.totalAmount,
+        };
+      }),
       total,
       limit,
       offset,

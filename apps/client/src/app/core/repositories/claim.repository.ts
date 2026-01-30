@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Claim, Damage } from '../models/claim.model';
+import { Claim, ClaimSummary, Damage } from '../models/claim.model';
 import { ClaimStatus } from '../models/claim-status.enum';
 
 export interface PaginatedResult<T> {
@@ -10,7 +10,7 @@ export interface PaginatedResult<T> {
 }
 
 export abstract class ClaimRepository {
-  abstract getClaims(limit?: number, offset?: number): Observable<PaginatedResult<Claim>>;
+  abstract getClaims(limit?: number, offset?: number): Observable<PaginatedResult<ClaimSummary>>;
   abstract getDamages(
     claimId: string,
     limit?: number,

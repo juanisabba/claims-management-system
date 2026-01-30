@@ -8,8 +8,8 @@ import { ClaimStatus } from '../../../core/models/claim-status.enum';
 
 describe('ClaimsStore', () => {
   let store: ClaimsStore;
-  let repositorySpy: any;
-  let toastServiceSpy: any;
+  let repositorySpy: Partial<ClaimRepository>;
+  let toastServiceSpy: Partial<ToastService>;
 
   const mockClaim: Claim = {
     id: '1',
@@ -31,7 +31,7 @@ describe('ClaimsStore', () => {
       getClaimById: () => of(mockClaim),
       addDamage: () => of(mockClaim),
       deleteDamage: () => of(undefined),
-      getClaims: () => of([]),
+      getClaims: () => of({ data: [], total: 0, limit: 10, offset: 0 }),
       updateStatus: () => of(mockClaim),
       getDamages: () =>
         of({ data: mockClaim.damages, total: mockClaim.damages.length, limit: 5, offset: 0 }),

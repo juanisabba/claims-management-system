@@ -24,3 +24,11 @@ export interface Claim {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ClaimSummary {
+  id: string;
+  title: string;
+  description: string;
+  status: ClaimStatus;
+  totalAmount: number;
+}
