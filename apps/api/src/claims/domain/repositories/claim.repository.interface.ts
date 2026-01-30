@@ -20,7 +20,7 @@ export interface PaginatedResult<T> {
 export interface IClaimRepository {
   save(claim: Claim): Promise<void>;
   findById(id: string): Promise<Claim | null>;
-  findAll(filters: ClaimFilters): Promise<PaginatedResult<Claim>>;
+  findAll(filters: ClaimFilters): Promise<PaginatedResult<any>>;
   update(claim: Claim): Promise<void>;
   delete(id: string): Promise<void>;
 }

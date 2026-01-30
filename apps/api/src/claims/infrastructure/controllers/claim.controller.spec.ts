@@ -77,7 +77,15 @@ describe('ClaimController', () => {
 
   it('should find all claims', async () => {
     repository.findAll.mockResolvedValue({
-      data: [claim],
+      data: [
+        {
+          _id: 'c1',
+          title: 't',
+          description: 'd',
+          status: 'Pending',
+          totalAmount: 0,
+        },
+      ],
       total: 1,
       limit: 10,
       offset: 0,

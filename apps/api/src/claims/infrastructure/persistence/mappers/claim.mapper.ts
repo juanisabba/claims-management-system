@@ -16,10 +16,10 @@ export interface RawClaim {
   title: string;
   description: string;
   status: string;
-  damages: RawDamage[];
+  damages?: RawDamage[];
   totalAmount: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class ClaimMapper {
@@ -41,8 +41,8 @@ export class ClaimMapper {
       raw.description,
       raw.status as ClaimStatus,
       damages,
-      raw.createdAt,
-      raw.updatedAt,
+      raw.createdAt || new Date(),
+      raw.updatedAt || new Date(),
     );
   }
 
@@ -83,6 +83,16 @@ export class ClaimMapper {
       })),
       createdAt: claim.createdAt,
       updatedAt: claim.updatedAt,
+    };
+  }
+
+  static toSummaryResponse(raw: RawClaim) {
+    return {
+      id: raw._id,
+      title: raw.title,
+      description: raw.description,
+      status: raw.status,
+      totalAmount: raw.totalAmount,
     };
   }
 }

@@ -81,7 +81,7 @@ describe('MongooseClaimRepository', () => {
     const result = await repository.findAll({ limit: 10, offset: 0 });
 
     expect(result.data).toHaveLength(1);
-    expect(result.data[0].id).toBe('c1');
+    expect(result.data[0]._id).toBe('c1');
     expect(result.total).toBe(1);
     expect(result.limit).toBe(10);
     expect(result.offset).toBe(0);
@@ -106,10 +106,8 @@ describe('MongooseClaimRepository', () => {
     expect(mockExec).toHaveBeenCalled();
   });
 
-  // ⭐ NUEVOS TESTS PARA 100% BRANCH COVERAGE
   describe('Edge Cases - Branch Coverage', () => {
     it('should return empty array when no claims found', async () => {
-      // ⭐ Cubre el branch de array vacío en findAll
       const mockExecFind = jest.fn().mockResolvedValue([]);
       const mockExecCount = jest.fn().mockResolvedValue(0);
 
@@ -132,7 +130,15 @@ describe('MongooseClaimRepository', () => {
       expect(result.data).toEqual([]);
       expect(result.data).toHaveLength(0);
       expect(result.total).toBe(0);
-      expect(mockModel.find).toHaveBeenCalledWith({});
+      expect(mockModel.find).toHaveBeenCalledWith(
+        {},
+        {
+          description: 1,
+          status: 1,
+          title: 1,
+          totalAmount: 1,
+        },
+      );
     });
 
     it('should handle filters in findAll', async () => {
@@ -158,7 +164,12 @@ describe('MongooseClaimRepository', () => {
       const result = await repository.findAll(filters);
 
       expect(result.data).toHaveLength(1);
-      expect(mockModel.find).toHaveBeenCalledWith(filters);
+      expect(mockModel.find).toHaveBeenCalledWith(filters, {
+        description: 1,
+        status: 1,
+        title: 1,
+        totalAmount: 1,
+      });
     });
 
     it('should handle multiple claims in findAll', async () => {
@@ -186,8 +197,8 @@ describe('MongooseClaimRepository', () => {
       const result = await repository.findAll({});
 
       expect(result.data).toHaveLength(2);
-      expect(result.data[0].id).toBe('c1');
-      expect(result.data[1].id).toBe('c2');
+      expect(result.data[0]._id).toBe('c1');
+      expect(result.data[1]._id).toBe('c2');
       expect(result.total).toBe(2);
     });
   });

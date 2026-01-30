@@ -92,7 +92,7 @@ export class ClaimController {
     });
     return {
       ...result,
-      data: result.data.map((claim) => ClaimMapper.toResponse(claim)),
+      data: result.data.map((doc) => ClaimMapper.toSummaryResponse(doc)),
     };
   }
 
