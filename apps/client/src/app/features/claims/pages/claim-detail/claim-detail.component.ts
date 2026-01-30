@@ -39,6 +39,9 @@ export class ClaimDetailComponent implements OnInit {
   isStatusModalOpen = signal(false);
   pendingStatus = signal<ClaimStatus | null>(null);
 
+  isDeleteDamageModalOpen = signal(false);
+  damageIdToDelete = signal<string | null>(null);
+
   statusControl = new FormControl<ClaimStatus | null>(null);
 
   ClaimStatus = ClaimStatus;
@@ -120,9 +123,20 @@ export class ClaimDetailComponent implements OnInit {
 
   onDeleteDamage(damageId: string): void {
     if (this.store.claim()?.status !== ClaimStatus.Pending) return;
+    this.damageIdToDelete.set(damageId);
+    this.isDeleteDamageModalOpen.set(true);
+  }
 
-    if (confirm('Are you sure you want to delete this damage?')) {
-      this.store.deleteDamage(damageId);
+  cancelDeleteDamage(): void {
+    this.isDeleteDamageModalOpen.set(false);
+    this.damageIdToDelete.set(null);
+  }
+
+  async confirmDeleteDamage(): Promise<void> {
+    const damageId = this.damageIdToDelete();
+    if (damageId) {
+      await this.store.deleteDamage(damageId);
+      this.cancelDeleteDamage();
     }
   }
 

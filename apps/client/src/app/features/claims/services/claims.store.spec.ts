@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ClaimsStore } from './claims.store';
 import { ClaimRepository } from '../../../core/repositories/claim.repository';
+import { ToastService } from '../../../core/services/toast.service';
 import { of } from 'rxjs';
 import { Claim, Severity } from '../../../core/models/claim.model';
 import { ClaimStatus } from '../../../core/models/claim-status.enum';
@@ -8,6 +9,7 @@ import { ClaimStatus } from '../../../core/models/claim-status.enum';
 describe('ClaimsStore', () => {
   let store: ClaimsStore;
   let repositorySpy: any;
+  let toastServiceSpy: any;
 
   const mockClaim: Claim = {
     id: '1',
@@ -24,24 +26,28 @@ describe('ClaimsStore', () => {
   };
 
   beforeEach(() => {
-    // Create a mock repository object manually to avoid dependency on global 'jasmine' if using Vitest without compat
+    // Create a mock repository object manually
     repositorySpy = {
       getClaimById: () => of(mockClaim),
       addDamage: () => of(mockClaim),
-      deleteDamage: () => of(mockClaim),
+      deleteDamage: () => of(undefined),
       getClaims: () => of([]),
       updateStatus: () => of(mockClaim),
+      getDamages: () =>
+        of({ data: mockClaim.damages, total: mockClaim.damages.length, limit: 5, offset: 0 }),
     };
 
-    // Use spyOn if available (Jasmine/Vitest compatibility often provides this)
-    // If we are in a strict Vitest environment without globals, we might need 'vi.spyOn'
-    // But 'describe' and 'it' are already globals here, so 'spyOn' likely is too or we just mock return values directly.
-
-    // Better: just assign functions that we can spy on if needed, or simply let them return observables.
-    // For this test, simply checking state updates is enough.
+    toastServiceSpy = {
+      success: () => {},
+      error: () => {},
+    };
 
     TestBed.configureTestingModule({
-      providers: [ClaimsStore, { provide: ClaimRepository, useValue: repositorySpy }],
+      providers: [
+        ClaimsStore,
+        { provide: ClaimRepository, useValue: repositorySpy },
+        { provide: ToastService, useValue: toastServiceSpy },
+      ],
     });
 
     store = TestBed.inject(ClaimsStore);
@@ -84,15 +90,18 @@ describe('ClaimsStore', () => {
     repositorySpy.getClaimById = () => of(mockClaim);
     await store.loadClaim('1');
 
-    const updatedClaim = {
-      ...mockClaim,
-      damages: [mockClaim.damages[0]], // keep only first one
-    };
-    repositorySpy.deleteDamage = () => of(updatedClaim);
+    repositorySpy.deleteDamage = () => of(undefined);
+    repositorySpy.getDamages = () =>
+      of({ data: [mockClaim.damages[0]], total: 1, limit: 5, offset: 0 });
 
     await store.deleteDamage('d2');
 
-    expect(store.claim()).toEqual(updatedClaim);
+    const expectedClaim = {
+      ...mockClaim,
+      damages: [mockClaim.damages[0]],
+    };
+
+    expect(store.claim()).toEqual(expectedClaim);
     expect(store.totalAmount()).toBe(100);
   });
 });

@@ -28,6 +28,6 @@ export abstract class ClaimRepository {
     damageId: string,
     damage: Partial<Omit<Damage, 'id'>>,
   ): Observable<Claim>;
-  abstract deleteDamage(claimId: string, damageId: string): Observable<Claim>;
+  abstract deleteDamage(claimId: string, damageId: string): Observable<void>;
   abstract updateStatus(id: string, status: ClaimStatus): Observable<Claim>;
 }

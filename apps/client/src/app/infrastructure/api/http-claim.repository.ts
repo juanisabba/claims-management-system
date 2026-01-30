@@ -85,10 +85,10 @@ export class HttpClaimRepository implements ClaimRepository {
       .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
   }
 
-  deleteDamage(claimId: string, damageId: string): Observable<Claim> {
+  deleteDamage(claimId: string, damageId: string): Observable<void> {
     return this.http
-      .delete<any>(`${this.apiUrl}/${claimId}/damages/${damageId}`)
-      .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
+      .delete<void>(`${this.apiUrl}/${claimId}/damages/${damageId}`)
+      .pipe(catchError(this.handleError));
   }
 
   updateStatus(id: string, status: ClaimStatus): Observable<Claim> {

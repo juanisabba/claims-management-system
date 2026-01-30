@@ -3,12 +3,14 @@ import { firstValueFrom } from 'rxjs';
 import { Claim, Damage, Severity } from '../../../core/models/claim.model';
 import { ClaimStatus } from '../../../core/models/claim-status.enum';
 import { ClaimRepository } from '../../../core/repositories/claim.repository';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClaimsStore {
   private readonly repository = inject(ClaimRepository);
+  private readonly toastService = inject(ToastService);
 
   // State
   readonly claim = signal<Claim | null>(null);
@@ -232,13 +234,21 @@ export class ClaimsStore {
     this.isLoading.set(true);
     this.error.set(null);
     try {
-      const updatedClaim = await firstValueFrom(
-        this.repository.deleteDamage(currentClaim.id, damageId),
-      );
-      this.claim.set(updatedClaim);
+      await firstValueFrom(this.repository.deleteDamage(currentClaim.id, damageId));
+
+      // Update local state by removing the deleted damage
+      if (currentClaim) {
+        this.claim.set({
+          ...currentClaim,
+          damages: currentClaim.damages.filter((d) => d.id !== damageId),
+        });
+      }
+
       await this.loadDamages();
+      this.toastService.success('Damage deleted successfully.');
     } catch (err) {
       this.error.set('Failed to delete damage');
+      this.toastService.error('Failed to delete damage. Please try again.');
       console.error(err);
     } finally {
       this.isLoading.set(false);
