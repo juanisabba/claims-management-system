@@ -1,5 +1,3 @@
-# AI Development & Decision Log
-
 ## Project: Claims Management System
 
 - **Architecture:** Hexagonal / DDD
@@ -26,8 +24,8 @@ The fastest way to run the entire ecosystem (Database, API, and Frontend) is usi
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Node.js v20 (if running locally without Docker)
+- Docker & Docker Compose (for containerized deployment)
+- Node.js v24 (if running locally without Docker)
 - pnpm (recommended package manager)
 
 ### Installation & Run
@@ -49,14 +47,30 @@ API_PREFIX=api/v1
 MONGODB_URI=mongodb://mongodb:27017/claims_db
 ```
 
-3. Launch with Docker:
+3. Launch the Application:
+
+**Option A: Docker/Podman (Recommended for Production)**
 
 ```bash
+# Using Docker
 docker-compose up --build
+
+# Or using Podman
+podman compose up --build
+```
+
+**Option B: Local Development (Traditional Approach)**
+
+```bash
+# Install dependencies
+pnpm i
+
+# Start both API and Client from root
+pnpm dev
 ```
 
 4. Access the Application:
-   - Frontend: http://localhost
+   - Frontend: http://localhost:4200
    - API Documentation (Swagger): http://localhost:3000/api/api-docs
    - API Base URL: http://localhost:3000/api/v1
 
