@@ -32,3 +32,5 @@ export const ClaimSchema: Schema<ClaimDocument> = new Schema<ClaimDocument>(
     versionKey: false,
   },
 );
+
+ClaimSchema.index({ createdAt: -1 }, { background: true });

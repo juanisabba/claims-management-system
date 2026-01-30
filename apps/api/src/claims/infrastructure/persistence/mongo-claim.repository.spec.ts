@@ -76,10 +76,12 @@ describe('MongooseClaimRepository', () => {
     const mockExecCount = jest.fn().mockResolvedValue(1);
 
     mockModel.find.mockReturnValue({
-      skip: jest.fn().mockReturnValue({
-        limit: jest.fn().mockReturnValue({
-          lean: jest.fn().mockReturnValue({
-            exec: mockExecFind,
+      sort: jest.fn().mockReturnValue({
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: mockExecFind,
+            }),
           }),
         }),
       }),
@@ -123,10 +125,12 @@ describe('MongooseClaimRepository', () => {
       const mockExecCount = jest.fn().mockResolvedValue(0);
 
       mockModel.find.mockReturnValue({
-        skip: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: mockExecFind,
+        sort: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              lean: jest.fn().mockReturnValue({
+                exec: mockExecFind,
+              }),
             }),
           }),
         }),
@@ -158,10 +162,12 @@ describe('MongooseClaimRepository', () => {
       const mockExecCount = jest.fn().mockResolvedValue(1);
 
       mockModel.find.mockReturnValue({
-        skip: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: mockExecFind,
+        sort: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              lean: jest.fn().mockReturnValue({
+                exec: mockExecFind,
+              }),
             }),
           }),
         }),
@@ -192,10 +198,12 @@ describe('MongooseClaimRepository', () => {
       const mockExecCount = jest.fn().mockResolvedValue(2);
 
       mockModel.find.mockReturnValue({
-        skip: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: mockExecFind,
+        sort: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              lean: jest.fn().mockReturnValue({
+                exec: mockExecFind,
+              }),
             }),
           }),
         }),

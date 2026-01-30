@@ -46,6 +46,7 @@ export class MongooseClaimRepository implements IClaimRepository {
           status: 1,
           totalAmount: 1,
         })
+        .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
         .lean()
