@@ -1,9 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as yaml from 'js-yaml';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -28,15 +25,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/api-docs', app, document);
 
-  if (process.env.NODE_ENV !== 'production') {
-    const yamlString = yaml.dump(document, {
-      indent: 2,
-      noRefs: true,
-    });
-    const outputPath = path.join(process.cwd(), 'openapi.yaml');
-    fs.writeFileSync(outputPath, yamlString, 'utf8');
-  }
-
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000, '0.0.0.0');
 }
+
 bootstrap();

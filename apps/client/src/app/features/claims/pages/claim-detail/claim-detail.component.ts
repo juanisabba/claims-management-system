@@ -34,7 +34,7 @@ export class ClaimDetailComponent implements OnInit {
   isEditClaimModalOpen = signal(false);
   claimForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), NoWhitespaceValidator()]],
-    description: ['', [Validators.required, Validators.minLength(10), NoWhitespaceValidator()]],
+    description: ['', [Validators.required, NoWhitespaceValidator()]],
   });
 
   isStatusModalOpen = signal(false);

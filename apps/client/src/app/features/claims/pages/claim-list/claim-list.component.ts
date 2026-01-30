@@ -25,7 +25,7 @@ export class ClaimListComponent implements OnInit {
 
   claimForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3), NoWhitespaceValidator()]],
-    description: ['', [Validators.required, Validators.minLength(10), NoWhitespaceValidator()]],
+    description: ['', [Validators.required, NoWhitespaceValidator()]],
   });
 
   constructor() {
