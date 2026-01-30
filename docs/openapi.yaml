@@ -132,9 +132,7 @@ paths:
         Update claim properties (status, description, title).
 
         **Business Rules:**
-        - To change status to `Finished`:
-          - Must have at least one damage with severity `high`
-          - Description must have more than 100 characters
+        - A claim with at least one "Total" damage requires a general description of more than 100 characters to be able to switch to Finished status.
       operationId: updateClaim
       parameters:
         - $ref: "#/components/parameters/ClaimId"
@@ -369,11 +367,6 @@ components:
           minimum: 0
           description: Calculated total amount (sum of all damage prices)
           example: 1500.50
-        damageCount:
-          type: integer
-          minimum: 0
-          description: Number of associated damages
-          example: 3
         createdAt:
           type: string
           format: date-time

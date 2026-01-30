@@ -1,0 +1,372 @@
+openapi: 3.0.0
+paths:
+  /api/v1:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+      tags:
+        - App
+  /api/v1/claims:
+    post:
+      operationId: ClaimController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClaimDto'
+      responses:
+        '201':
+          description: The claim has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimSummaryDto'
+      summary: Create a new claim
+      tags:
+        - Claims
+    get:
+      operationId: ClaimController_findAll
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of claims retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClaimSummaryDto'
+      summary: Get all claims with pagination
+      tags:
+        - Claims
+  /api/v1/claims/{id}/damages:
+    post:
+      operationId: ClaimController_addDamage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDamageDto'
+      responses:
+        '201':
+          description: The damage has been successfully added.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimSummaryDto'
+        '404':
+          description: Claim not found.
+      summary: Add a damage to an existing claim
+      tags:
+        - Claims
+        - Damages
+    get:
+      operationId: ClaimController_findDamages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of damages retrieved successfully.
+        '404':
+          description: Claim not found.
+      summary: Get all damages of a specific claim
+      tags:
+        - Claims
+        - Damages
+  /api/v1/claims/{id}/damages/{damageId}:
+    patch:
+      operationId: ClaimController_updateDamage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+        - name: damageId
+          required: true
+          in: path
+          description: The ID of the damage
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDamageDto'
+      responses:
+        '200':
+          description: The damage has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimSummaryDto'
+        '404':
+          description: Claim or Damage not found.
+      summary: Update a specific damage in a claim
+      tags:
+        - Claims
+        - Damages
+    delete:
+      operationId: ClaimController_removeDamage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+        - name: damageId
+          required: true
+          in: path
+          description: The ID of the damage
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The damage has been successfully removed.
+        '404':
+          description: Claim or Damage not found.
+      summary: Remove a specific damage from a claim
+      tags:
+        - Claims
+        - Damages
+  /api/v1/claims/{id}:
+    patch:
+      operationId: ClaimController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClaimDto'
+      responses:
+        '200':
+          description: The claim has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimSummaryDto'
+        '404':
+          description: Claim not found.
+      summary: Update claim details or status
+      tags:
+        - Claims
+    get:
+      operationId: ClaimController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the claim
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The claim has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimSummaryDto'
+        '404':
+          description: Claim not found.
+      summary: Get a claim by its ID
+      tags:
+        - Claims
+info:
+  title: Claims Management API
+  description: API for managing insurance claims and damages
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    AddDamageDto:
+      type: object
+      properties:
+        part:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: The part of the vehicle that is damaged
+          example: Front bumper
+        severity:
+          enum:
+            - low
+            - mid
+            - high
+          type: string
+          description: The severity of the damage
+          example: mid
+        imageUrl:
+          type: string
+          format: uri
+          description: URL of the image showing the damage
+          example: https://example.com/damage.jpg
+        price:
+          type: number
+          minimum: 0.01
+          description: Estimated repair price
+          example: 500
+      required:
+        - part
+        - severity
+        - imageUrl
+        - price
+    CreateClaimDto:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: The title of the claim
+          example: Car accident in downtown
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: A detailed description of the claim
+          example: A collision occurred at the intersection of Main and 5th.
+        damages:
+          description: List of damages associated with the claim
+          type: array
+          items:
+            $ref: '#/components/schemas/AddDamageDto'
+      required:
+        - title
+        - description
+    ClaimSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the claim
+          example: 60d0fe4f5311236168a109ca
+        title:
+          type: string
+          description: The title of the claim
+          example: Car accident in downtown
+        description:
+          type: string
+          description: A detailed description of the claim
+          example: A collision occurred at the intersection of Main and 5th.
+        status:
+          enum:
+            - Pending
+            - In Review
+            - Finished
+          type: string
+          description: The current status of the claim
+          example: Pending
+        totalAmount:
+          type: number
+          description: Total estimated repair amount for all damages
+          example: 1250.5
+      required:
+        - id
+        - title
+        - description
+        - status
+        - totalAmount
+    UpdateDamageDto:
+      type: object
+      properties:
+        part:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: The updated part of the vehicle that is damaged
+          example: Rear bumper
+        severity:
+          enum:
+            - low
+            - mid
+            - high
+          type: string
+          description: The updated severity of the damage
+          example: low
+        imageUrl:
+          type: string
+          format: uri
+          description: Updated URL of the image showing the damage
+          example: https://example.com/damage-updated.jpg
+        price:
+          type: number
+          minimum: 0.01
+          description: Updated estimated repair price
+          example: 450
+    UpdateClaimDto:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: The updated title of the claim
+          example: Car accident in downtown - Updated
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The updated description of the claim
+          example: 'Corrected collision location: Main and 6th.'
+        status:
+          enum:
+            - Pending
+            - In Review
+            - Finished
+          type: string
+          description: The updated status of the claim
+          example: In Review
