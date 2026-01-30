@@ -118,13 +118,13 @@ describe('Claim Entity', () => {
   });
 
   describe('validateFinishRules', () => {
-    it('should validate successfully when rules are met', () => {
+    it('should validate successfully when rules are met (High Severity + Long Description)', () => {
       claim.addDamage(damage2); // High severity
       // Description is already long enough in beforeEach
       expect(() => claim.validateFinishRules()).not.toThrow();
     });
 
-    it('should throw error if description is too short', () => {
+    it('should throw error if description is too short and has high severity damage', () => {
       claim = new Claim(
         'claim2',
         'Short',
@@ -138,12 +138,15 @@ describe('Claim Entity', () => {
       );
     });
 
-    it('should throw error if no high severity damage', () => {
-      claim.addDamage(damage1); // Low severity
-      expect(() => claim.validateFinishRules()).toThrow(DomainError);
-      expect(() => claim.validateFinishRules()).toThrow(
-        'Claim must have at least one high severity damage',
+    it('should validate successfully if no high severity damage, regardless of description length', () => {
+      claim = new Claim(
+        'claim2',
+        'Short',
+        'Short description',
+        ClaimStatus.Pending,
+        [damage1], // Low severity
       );
+      expect(() => claim.validateFinishRules()).not.toThrow();
     });
   });
 
@@ -154,18 +157,22 @@ describe('Claim Entity', () => {
         expect(claim.status).toBe(ClaimStatus.InReview);
       });
 
-      it('should transition to Finished if valid', () => {
+      it('should transition to Finished if valid (High Severity + Long Description)', () => {
         claim.addDamage(damage2);
         claim.transitionTo(ClaimStatus.Finished);
         expect(claim.status).toBe(ClaimStatus.Finished);
       });
 
-      it('should fail to transition to Finished if invalid', () => {
-        claim.addDamage(damage1); // Low severity only
-        expect(() => claim.transitionTo(ClaimStatus.Finished)).toThrow(
-          DomainError,
+      it('should transition to Finished if valid (Low Severity + Short Description)', () => {
+        claim = new Claim(
+          'c',
+          't',
+          'Short desc',
+          ClaimStatus.Pending,
+          [damage1], // Low severity
         );
-        expect(claim.status).toBe(ClaimStatus.Pending);
+        claim.transitionTo(ClaimStatus.Finished);
+        expect(claim.status).toBe(ClaimStatus.Finished);
       });
 
       it('should fail to transition to Pending (self transition not explicitly handled but implied invalid)', () => {
@@ -230,13 +237,13 @@ describe('Claim Entity', () => {
         expect(validClaim.status).toBe(ClaimStatus.Finished);
       });
 
-      it('should fail to transition to Finished if invalid', () => {
+      it('should fail to transition to Finished if invalid (High Severity + Short Description)', () => {
         const invalidClaim = new Claim(
           'invalid',
           'Title',
           'Short desc',
           ClaimStatus.Pending,
-          [damage2],
+          [damage2], // High severity
         );
         invalidClaim.transitionTo(ClaimStatus.InReview);
         expect(() => invalidClaim.transitionTo(ClaimStatus.Finished)).toThrow(

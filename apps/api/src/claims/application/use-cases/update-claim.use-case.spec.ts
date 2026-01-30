@@ -64,37 +64,33 @@ describe('UpdateClaimUseCase', () => {
     expect(saveSpy).toHaveBeenCalled();
   });
 
-  it('should throw DomainError when transition is invalid', async () => {
+  it('should throw DomainError when transition to Finished is invalid (High Severity + Short Description)', async () => {
     const claim = new Claim(
       'c1',
       'Title',
-      'Description',
+      'Short Description',
       ClaimStatus.Pending,
-      [],
+      [new Damage('d1', 'part', SeverityEnum.HIGH, 'url', 100)],
     );
     repository.findById.mockResolvedValue(claim);
 
-    // Transitioning from Pending to Finished without meeting rules throws DomainError
+    // Transitioning from Pending to Finished with high severity but short description
     const dto = { status: ClaimStatus.Finished };
 
-    await expect(useCase.execute('c1', dto)).rejects.toThrow(DomainError);
-  });
-
-  it('should handle transition error with long description but no high severity', async () => {
-    const longDescription = 'A'.repeat(101);
-    const claim = new Claim(
-      'c1',
-      'Title',
-      longDescription,
-      ClaimStatus.Pending,
-      [new Damage('d1', 'p', SeverityEnum.LOW, 'u', 100)],
-    );
-    repository.findById.mockResolvedValue(claim);
-
-    const dto = { status: ClaimStatus.Finished };
     await expect(useCase.execute('c1', dto)).rejects.toThrow(DomainError);
     await expect(useCase.execute('c1', dto)).rejects.toThrow(
-      'Claim must have at least one high severity damage',
+      'Claim description must exceed 100 characters',
     );
+  });
+
+  it('should allow transition to Finished with low severity regardless of description length', async () => {
+    const claim = new Claim('c1', 'Title', 'Short', ClaimStatus.Pending, [
+      new Damage('d1', 'p', SeverityEnum.LOW, 'u', 100),
+    ]);
+    repository.findById.mockResolvedValue(claim);
+
+    const dto = { status: ClaimStatus.Finished };
+    const result = await useCase.execute('c1', dto);
+    expect(result.status).toBe(ClaimStatus.Finished);
   });
 });

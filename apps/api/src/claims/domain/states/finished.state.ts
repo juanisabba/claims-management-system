@@ -6,7 +6,7 @@ import { ClaimStatus } from '../value-objects/claim-status.enum';
 import { Damage } from '../entities/damage.entity';
 
 export class FinishedState implements ClaimStatusState {
-  // BR-01: El estado Finished es inmutable
+  // BR-01: Finished state is immutable
   addDamage(claim: Claim, damage: Damage): void {
     throw new DomainError(
       'BR-01: Cannot add damage to a finished claim. The record is immutable.',
@@ -25,7 +25,7 @@ export class FinishedState implements ClaimStatusState {
     );
   }
 
-  // El ciclo de vida termina aquí, no hay más transiciones permitidas
+  // Life cycle ends here, no more transitions allowed
   transitionTo(claim: Claim, status: ClaimStatus): void {
     throw new DomainError(
       `Cannot transition from Finished to ${status}. This is a final state.`,
