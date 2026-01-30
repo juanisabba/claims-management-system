@@ -1,6 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Damage } from '../../../../core/models/claim.model';
+import { ClaimStatus } from '../../../../core/models/claim-status.enum';
 
 @Component({
   selector: 'app-damage-list',
@@ -10,4 +11,24 @@ import { Damage } from '../../../../core/models/claim.model';
 })
 export class DamageListComponent {
   damages = input.required<Damage[]>();
+  claimStatus = input.required<ClaimStatus>();
+  editDamage = output<Damage>();
+  deleteDamage = output<string>();
+
+  canEdit() {
+    return this.claimStatus() === ClaimStatus.Pending;
+  }
+
+  getSeverityClass(severity: string): string {
+    switch (severity.toLowerCase()) {
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'mid':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
 }

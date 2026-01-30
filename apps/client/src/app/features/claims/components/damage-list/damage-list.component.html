@@ -1,57 +1,104 @@
-<div class="space-y-4">
-  @for (damage of damages(); track damage.id) {
-    <div
-      class="flex items-center p-4 bg-white border rounded-xl hover:shadow-md transition-shadow duration-200 group"
-      [ngClass]="{
-        'border-l-4 border-l-green-500': damage.severity === 'low',
-        'border-l-4 border-l-yellow-500': damage.severity === 'mid',
-        'border-l-4 border-l-red-500': damage.severity === 'high',
-      }"
-    >
-      <!-- Image Thumbnail -->
-      <div
-        class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-100 mr-4"
-      >
-        @if (damage.imageUrl) {
-          <img
-            [src]="damage.imageUrl"
-            [alt]="damage.part"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        } @else {
-          <div class="w-full h-full flex items-center justify-center text-gray-300">
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Part
+        </th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Severity
+        </th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Price
+        </th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @for (damage of damages(); track damage.id) {
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 text-sm font-medium text-gray-900 max-w-md">
+            <div class="flex items-center">
+              <img
+                [src]="damage.imageUrl"
+                [alt]="damage.part"
+                class="h-10 w-10 rounded-md object-cover mr-3 border border-gray-200 flex-shrink-0"
               />
-            </svg>
-          </div>
-        }
-      </div>
-
-      <!-- Info -->
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between">
-          <h4 class="text-lg font-bold text-gray-900 truncate">{{ damage.part }}</h4>
-          <span class="text-lg font-semibold text-indigo-600">{{ damage.price | currency }}</span>
-        </div>
-        <div class="mt-1 flex items-center space-x-4">
-          <span
-            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium uppercase tracking-wider"
-            [ngClass]="{
-              'bg-green-100 text-green-800': damage.severity === 'low',
-              'bg-yellow-100 text-yellow-800': damage.severity === 'mid',
-              'bg-red-100 text-red-800': damage.severity === 'high',
-            }"
-          >
-            {{ damage.severity | titlecase }}
-          </span>
-          <span class="text-xs text-gray-400">ID: {{ damage.id.substring(0, 8) }}...</span>
-        </div>
-      </div>
-    </div>
-  }
+              <span class="truncate" [title]="damage.part">{{ damage.part }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <span
+              [class]="getSeverityClass(damage.severity)"
+              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+            >
+              {{ damage.severity | titlecase }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+            {{ damage.price | currency: 'EUR' }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex space-x-3">
+              @if (canEdit()) {
+                <button
+                  (click)="editDamage.emit(damage)"
+                  class="text-amber-600 hover:text-amber-900 transition-colors"
+                  title="Edit Damage"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-pencil"
+                  >
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </button>
+                <button
+                  (click)="deleteDamage.emit(damage.id)"
+                  class="text-red-600 hover:text-red-900 transition-colors"
+                  title="Delete Damage"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-trash-2"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    <line x1="10" x2="10" y1="11" y2="17" />
+                    <line x1="14" x2="14" y1="11" y2="17" />
+                  </svg>
+                </button>
+              } @else {
+                <span class="text-gray-400 italic text-xs">Read-only</span>
+              }
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="px-6 py-10 text-center text-gray-500">No damages recorded yet.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </div>
