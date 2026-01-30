@@ -19,12 +19,14 @@ export class ClaimDetailComponent implements OnInit {
 
   ClaimStatus = ClaimStatus;
 
+  constructor() {
+    console.log('Claim Detail Initialized');
+  }
+
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
-      if (id) {
-        this.store.loadClaim(id);
-      }
+      this.store.loadClaim(id);
     });
   }
 
