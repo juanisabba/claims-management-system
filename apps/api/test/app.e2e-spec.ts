@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -14,6 +16,12 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  });
+
+  afterEach(async () => {
+    const connection: Connection = app.get(getConnectionToken());
+    await connection.close();
+    await app.close();
   });
 
   it('/ (GET)', () => {
