@@ -3,6 +3,9 @@
   "private": true,
   "description": "Claims Management Monorepo",
   "scripts": {
+    "dev:api": "pnpm --filter api run start:dev",
+    "dev:client": "pnpm --filter client start",
+    "dev": "concurrently -n \"API,CLIENT\" -c \"magenta,cyan\" \"pnpm dev:api\" \"pnpm dev:client\"",
     "api:dev": "pnpm --filter api run start:dev",
     "api:test": "pnpm --filter api run test",
     "api:cov": "pnpm --filter api run test:cov",
@@ -10,6 +13,7 @@
     "build": "pnpm --filter api build && pnpm --filter client build"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "prettier": "^3.8.1",
     "typescript": "^5.0.0"
   },
