@@ -1,7 +1,8 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Damage } from '../../../../core/models/claim.model';
 import { ClaimStatus } from '../../../../core/models/claim-status.enum';
+import { ClaimsStore } from '../../services/claims.store';
 
 @Component({
   selector: 'app-damage-list',
@@ -10,6 +11,8 @@ import { ClaimStatus } from '../../../../core/models/claim-status.enum';
   templateUrl: './damage-list.component.html',
 })
 export class DamageListComponent {
+  protected readonly store = inject(ClaimsStore);
+  protected readonly Math = Math;
   damages = input.required<Damage[]>();
   claimStatus = input.required<ClaimStatus>();
   editDamage = output<Damage>();

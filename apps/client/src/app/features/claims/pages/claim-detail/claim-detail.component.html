@@ -174,7 +174,7 @@
           </div>
 
           <app-damage-list
-            [damages]="claim.damages"
+            [damages]="store.paginatedDamages()"
             [claimStatus]="claim.status"
             (editDamage)="openEditDamageModal($event)"
             (deleteDamage)="onDeleteDamage($event)"

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ClaimRepository } from '../../core/repositories/claim.repository';
+import { ClaimRepository, PaginatedResult } from '../../core/repositories/claim.repository';
 import { Claim, Damage } from '../../core/models/claim.model';
 import { ClaimStatus } from '../../core/models/claim-status.enum';
 import { ClaimMapper } from './mappers/claim.mapper';
@@ -13,11 +13,42 @@ export class HttpClaimRepository implements ClaimRepository {
 
   constructor(private http: HttpClient) {}
 
-  getClaims(): Observable<Claim[]> {
-    return this.http.get<any[]>(this.apiUrl).pipe(
-      map((claims) => claims.map(ClaimMapper.fromApi)),
-      catchError(this.handleError),
-    );
+  getClaims(limit: number = 10, offset: number = 0): Observable<PaginatedResult<Claim>> {
+    return this.http
+      .get<any>(this.apiUrl, {
+        params: { limit: limit.toString(), offset: offset.toString() },
+      })
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data.map(ClaimMapper.fromApi),
+        })),
+        catchError(this.handleError),
+      );
+  }
+
+  getDamages(
+    claimId: string,
+    limit: number = 5,
+    offset: number = 0,
+  ): Observable<PaginatedResult<Damage>> {
+    return this.http
+      .get<any>(`${this.apiUrl}/${claimId}/damages`, {
+        params: { limit: limit.toString(), offset: offset.toString() },
+      })
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data.map((d: any) => ({
+            id: d.id,
+            part: d.part,
+            severity: d.severity,
+            imageUrl: d.imageUrl,
+            price: d.price,
+          })),
+        })),
+        catchError(this.handleError),
+      );
   }
 
   getClaimById(id: string): Observable<Claim> {

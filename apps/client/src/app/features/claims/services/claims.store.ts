@@ -17,6 +17,17 @@ export class ClaimsStore {
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
+  // Pagination Claims
+  readonly claimsLimit = signal<number>(10);
+  readonly claimsOffset = signal<number>(0);
+  readonly totalClaims = signal<number>(0);
+
+  // Pagination Damages
+  readonly damagesLimit = signal<number>(5);
+  readonly damagesOffset = signal<number>(0);
+  readonly totalDamages = signal<number>(0);
+  readonly paginatedDamages = signal<Damage[]>([]);
+
   // Computed
   readonly totalAmount = computed(() => {
     const currentClaim = this.claim();
@@ -29,14 +40,72 @@ export class ClaimsStore {
     this.isLoading.set(true);
     this.error.set(null);
     try {
-      const claims = await firstValueFrom(this.repository.getClaims());
-      this.allClaims.set(claims);
+      const response = await firstValueFrom(
+        this.repository.getClaims(this.claimsLimit(), this.claimsOffset()),
+      );
+      this.allClaims.set(response.data);
+      this.totalClaims.set(response.total);
     } catch (err) {
       this.error.set('Failed to load claims');
       this.allClaims.set([]);
+      this.totalClaims.set(0);
       console.error(err);
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  async loadDamages(): Promise<void> {
+    const currentClaim = this.claim();
+    if (!currentClaim) return;
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    try {
+      const response = await firstValueFrom(
+        this.repository.getDamages(currentClaim.id, this.damagesLimit(), this.damagesOffset()),
+      );
+      this.paginatedDamages.set(response.data);
+      this.totalDamages.set(response.total);
+    } catch (err) {
+      this.error.set('Failed to load damages');
+      this.paginatedDamages.set([]);
+      this.totalDamages.set(0);
+      console.error(err);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async nextClaimsPage(): Promise<void> {
+    const nextOffset = this.claimsOffset() + this.claimsLimit();
+    if (nextOffset < this.totalClaims()) {
+      this.claimsOffset.set(nextOffset);
+      await this.loadAllClaims();
+    }
+  }
+
+  async prevClaimsPage(): Promise<void> {
+    const prevOffset = Math.max(0, this.claimsOffset() - this.claimsLimit());
+    if (prevOffset !== this.claimsOffset()) {
+      this.claimsOffset.set(prevOffset);
+      await this.loadAllClaims();
+    }
+  }
+
+  async nextDamagesPage(): Promise<void> {
+    const nextOffset = this.damagesOffset() + this.damagesLimit();
+    if (nextOffset < this.totalDamages()) {
+      this.damagesOffset.set(nextOffset);
+      await this.loadDamages();
+    }
+  }
+
+  async prevDamagesPage(): Promise<void> {
+    const prevOffset = Math.max(0, this.damagesOffset() - this.damagesLimit());
+    if (prevOffset !== this.damagesOffset()) {
+      this.damagesOffset.set(prevOffset);
+      await this.loadDamages();
     }
   }
 
@@ -52,6 +121,8 @@ export class ClaimsStore {
     try {
       const claim = await firstValueFrom(this.repository.getClaimById(id));
       this.claim.set(claim);
+      this.damagesOffset.set(0);
+      await this.loadDamages();
     } catch (err) {
       this.error.set('Failed to load claim');
       this.claim.set(null);
@@ -65,8 +136,8 @@ export class ClaimsStore {
     this.isLoading.set(true);
     this.error.set(null);
     try {
-      const newClaim = await firstValueFrom(this.repository.createClaim(data));
-      this.allClaims.update((claims) => [...claims, newClaim]);
+      await firstValueFrom(this.repository.createClaim(data));
+      await this.loadAllClaims();
     } catch (err) {
       this.error.set('Failed to create claim');
       console.error(err);
@@ -80,9 +151,7 @@ export class ClaimsStore {
     this.error.set(null);
     try {
       const updatedClaim = await firstValueFrom(this.repository.updateClaim(id, data));
-      this.allClaims.update((claims) =>
-        claims.map((c) => (c.id === updatedClaim.id ? updatedClaim : c)),
-      );
+      await this.loadAllClaims();
       if (this.claim()?.id === id) {
         this.claim.set(updatedClaim);
       }
@@ -111,6 +180,7 @@ export class ClaimsStore {
     try {
       const updatedClaim = await firstValueFrom(this.repository.addDamage(currentClaim.id, damage));
       this.claim.set(updatedClaim);
+      await this.loadDamages();
     } catch (err) {
       this.error.set('Failed to add damage');
       console.error(err);
@@ -138,6 +208,7 @@ export class ClaimsStore {
         this.repository.updateDamage(currentClaim.id, damageId, damage),
       );
       this.claim.set(updatedClaim);
+      await this.loadDamages();
     } catch (err) {
       this.error.set('Failed to update damage');
       console.error(err);
@@ -165,6 +236,7 @@ export class ClaimsStore {
         this.repository.deleteDamage(currentClaim.id, damageId),
       );
       this.claim.set(updatedClaim);
+      await this.loadDamages();
     } catch (err) {
       this.error.set('Failed to delete damage');
       console.error(err);
@@ -199,6 +271,7 @@ export class ClaimsStore {
         this.repository.updateStatus(currentClaim.id, status),
       );
       this.claim.set(updatedClaim);
+      await this.loadAllClaims();
     } catch (err) {
       this.error.set('Failed to update status');
       console.error(err);

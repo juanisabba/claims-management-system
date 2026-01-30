@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ClaimsStore } from '../../services/claims.store';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { Claim } from '../../../../core/models/claim.model';
@@ -9,13 +9,14 @@ import { Claim } from '../../../../core/models/claim.model';
 @Component({
   selector: 'app-claim-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './claim-list.component.html',
 })
 export class ClaimListComponent implements OnInit {
   protected readonly store = inject(ClaimsStore);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  protected readonly Math = Math;
 
   isModalOpen = signal(false);
   editingClaim = signal<Claim | null>(null);
