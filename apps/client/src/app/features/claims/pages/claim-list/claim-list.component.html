@@ -150,16 +150,27 @@
 
       <div>
         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-        <textarea
-          id="description"
-          formControlName="description"
-          rows="3"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
-          [class.border-red-500]="
-            claimForm.get('description')?.touched && claimForm.get('description')?.invalid
-          "
-          placeholder="Enter claim description"
-        ></textarea>
+        <div class="relative">
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="3"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+            [class.border-red-500]="
+              claimForm.get('description')?.touched && claimForm.get('description')?.invalid
+            "
+            placeholder="Enter claim description"
+          ></textarea>
+          <div
+            class="absolute bottom-2 right-2 text-xs text-gray-500"
+            [class.text-red-500]="
+              (claimForm.get('description')?.value?.length || 0) === 0 ||
+              (claimForm.get('description')?.value?.length || 0) > 500
+            "
+          >
+            {{ claimForm.get('description')?.value?.length || 0 }} / 500
+          </div>
+        </div>
         @if (claimForm.get('description')?.touched && claimForm.get('description')?.invalid) {
           <p class="mt-1 text-xs text-red-600">
             @if (claimForm.get('description')?.errors?.['whitespace']) {
