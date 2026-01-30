@@ -7,13 +7,17 @@ import {
   Min,
   MaxLength,
   IsOptional,
+  MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { SeverityEnum } from 'src/claims/domain/value-objects/severity.enum';
 
 export class UpdateDamageDto {
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @MinLength(1)
   @MaxLength(200)
   part?: string;
 
