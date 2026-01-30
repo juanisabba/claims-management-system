@@ -1,13 +1,11 @@
 import { MongooseClaimRepository } from './mongo-claim.repository';
-import { Model } from 'mongoose';
-import { ClaimDocument } from './schemas/claim.schema';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimMapper } from './mappers/claim.mapper';
 import { ClaimStatus } from '../../domain/value-objects/claim-status.enum';
 
 describe('MongooseClaimRepository', () => {
   let repository: MongooseClaimRepository;
-  let mockModel: jest.Mocked<Model<ClaimDocument>>;
+  let mockModel: any;
 
   beforeEach(() => {
     mockModel = {
@@ -16,6 +14,7 @@ describe('MongooseClaimRepository', () => {
       updateOne: jest.fn(),
       deleteOne: jest.fn(),
       findByIdAndUpdate: jest.fn(),
+      countDocuments: jest.fn(),
     } as any;
     repository = new MongooseClaimRepository(mockModel);
   });
@@ -62,17 +61,30 @@ describe('MongooseClaimRepository', () => {
 
   it('should find all claims', async () => {
     const rawClaim = ClaimMapper.toPersistence(claim);
-    const mockExec = jest.fn().mockResolvedValue([rawClaim]);
+    const mockExecFind = jest.fn().mockResolvedValue([rawClaim]);
+    const mockExecCount = jest.fn().mockResolvedValue(1);
+
     mockModel.find.mockReturnValue({
-      lean: jest.fn().mockReturnValue({
-        exec: mockExec,
+      skip: jest.fn().mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: mockExecFind,
+          }),
+        }),
       }),
     } as any);
 
-    const result = await repository.findAll({});
+    mockModel.countDocuments.mockReturnValue({
+      exec: mockExecCount,
+    } as any);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('c1');
+    const result = await repository.findAll({ limit: 10, offset: 0 });
+
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].id).toBe('c1');
+    expect(result.total).toBe(1);
+    expect(result.limit).toBe(10);
+    expect(result.offset).toBe(0);
   });
 
   it('should update a claim', async () => {
@@ -98,33 +110,54 @@ describe('MongooseClaimRepository', () => {
   describe('Edge Cases - Branch Coverage', () => {
     it('should return empty array when no claims found', async () => {
       // ⭐ Cubre el branch de array vacío en findAll
-      const mockExec = jest.fn().mockResolvedValue([]);
+      const mockExecFind = jest.fn().mockResolvedValue([]);
+      const mockExecCount = jest.fn().mockResolvedValue(0);
+
       mockModel.find.mockReturnValue({
-        lean: jest.fn().mockReturnValue({
-          exec: mockExec,
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: mockExecFind,
+            }),
+          }),
         }),
+      } as any);
+
+      mockModel.countDocuments.mockReturnValue({
+        exec: mockExecCount,
       } as any);
 
       const result = await repository.findAll({});
 
-      expect(result).toEqual([]);
-      expect(result).toHaveLength(0);
+      expect(result.data).toEqual([]);
+      expect(result.data).toHaveLength(0);
+      expect(result.total).toBe(0);
       expect(mockModel.find).toHaveBeenCalledWith({});
     });
 
     it('should handle filters in findAll', async () => {
       const rawClaim = ClaimMapper.toPersistence(claim);
-      const mockExec = jest.fn().mockResolvedValue([rawClaim]);
+      const mockExecFind = jest.fn().mockResolvedValue([rawClaim]);
+      const mockExecCount = jest.fn().mockResolvedValue(1);
+
       mockModel.find.mockReturnValue({
-        lean: jest.fn().mockReturnValue({
-          exec: mockExec,
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: mockExecFind,
+            }),
+          }),
         }),
+      } as any);
+
+      mockModel.countDocuments.mockReturnValue({
+        exec: mockExecCount,
       } as any);
 
       const filters = { status: ClaimStatus.Pending };
       const result = await repository.findAll(filters);
 
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
       expect(mockModel.find).toHaveBeenCalledWith(filters);
     });
 
@@ -133,18 +166,29 @@ describe('MongooseClaimRepository', () => {
       const rawClaim1 = ClaimMapper.toPersistence(claim);
       const rawClaim2 = ClaimMapper.toPersistence(claim2);
 
-      const mockExec = jest.fn().mockResolvedValue([rawClaim1, rawClaim2]);
+      const mockExecFind = jest.fn().mockResolvedValue([rawClaim1, rawClaim2]);
+      const mockExecCount = jest.fn().mockResolvedValue(2);
+
       mockModel.find.mockReturnValue({
-        lean: jest.fn().mockReturnValue({
-          exec: mockExec,
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: mockExecFind,
+            }),
+          }),
         }),
+      } as any);
+
+      mockModel.countDocuments.mockReturnValue({
+        exec: mockExecCount,
       } as any);
 
       const result = await repository.findAll({});
 
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe('c1');
-      expect(result[1].id).toBe('c2');
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].id).toBe('c1');
+      expect(result.data[1].id).toBe('c2');
+      expect(result.total).toBe(2);
     });
   });
 });

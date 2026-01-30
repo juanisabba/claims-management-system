@@ -5,6 +5,7 @@ import { ClaimDocument } from './schemas/claim.schema';
 import {
   IClaimRepository,
   ClaimFilters,
+  PaginatedResult,
 } from '../../domain/repositories/claim.repository.interface';
 import { Claim } from '../../domain/entities/claim.entity';
 import { ClaimMapper, RawClaim } from './mappers/claim.mapper';
@@ -32,13 +33,30 @@ export class MongooseClaimRepository implements IClaimRepository {
     return ClaimMapper.toDomain(rawClaim);
   }
 
-  async findAll(filters: ClaimFilters): Promise<Claim[]> {
-    const documents = await this.claimModel.find(filters).lean().exec();
+  async findAll(filters: ClaimFilters): Promise<PaginatedResult<Claim>> {
+    const { limit = 10, offset = 0, ...queryFilters } = filters;
 
-    return documents.map((doc) => {
+    const [documents, total] = await Promise.all([
+      this.claimModel
+        .find(queryFilters)
+        .skip(offset)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.claimModel.countDocuments(queryFilters).exec(),
+    ]);
+
+    const data = documents.map((doc) => {
       const rawClaim = doc as unknown as RawClaim;
       return ClaimMapper.toDomain(rawClaim);
     });
+
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
   }
   async update(claim: Claim): Promise<void> {
     await this.save(claim);

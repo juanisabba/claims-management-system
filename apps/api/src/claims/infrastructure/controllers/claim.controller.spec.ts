@@ -76,21 +76,50 @@ describe('ClaimController', () => {
   });
 
   it('should find all claims', async () => {
-    repository.findAll.mockResolvedValue([claim]);
+    repository.findAll.mockResolvedValue({
+      data: [claim],
+      total: 1,
+      limit: 10,
+      offset: 0,
+    });
     const result = await controller.findAll();
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('c1');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].id).toBe('c1');
+    expect(result.total).toBe(1);
   });
 
   it('should return empty array when no claims found', async () => {
-    repository.findAll.mockResolvedValue([]);
+    repository.findAll.mockResolvedValue({
+      data: [],
+      total: 0,
+      limit: 10,
+      offset: 0,
+    });
     const result = await controller.findAll();
-    expect(result).toHaveLength(0);
+    expect(result.data).toHaveLength(0);
+    expect(result.total).toBe(0);
   });
 
   it('should find one claim', async () => {
     getClaimByIdUseCase.execute.mockResolvedValue(claim);
     const result = await controller.findOne('c1');
     expect(result.id).toBe('c1');
+  });
+
+  it('should find damages for a claim', async () => {
+    const claimWithDamages = new Claim('c1', 't', 'd', ClaimStatus.Pending, [
+      {
+        id: 'd1',
+        part: 'p1',
+        severity: 'low',
+        imageUrl: 'i1',
+        price: 10,
+      } as any,
+    ]);
+    getClaimByIdUseCase.execute.mockResolvedValue(claimWithDamages);
+    const result = await controller.findDamages('c1', '5', '0');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].id).toBe('d1');
+    expect(result.total).toBe(1);
   });
 });

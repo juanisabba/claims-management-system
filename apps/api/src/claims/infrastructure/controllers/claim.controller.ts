@@ -10,6 +10,7 @@ import {
   HttpStatus,
   Inject,
   UseFilters,
+  Query,
 } from '@nestjs/common';
 import { CreateClaimUseCase } from '../../application/use-cases/create-claim.use-case';
 import { AddDamageUseCase } from '../../application/use-cases/add-damage.use-case';
@@ -81,9 +82,46 @@ export class ClaimController {
   }
 
   @Get()
-  async findAll() {
-    const claims = await this.claimRepository.findAll({});
-    return claims.map((claim) => ClaimMapper.toResponse(claim));
+  async findAll(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const result = await this.claimRepository.findAll({
+      limit: limit ? parseInt(limit, 10) : 10,
+      offset: offset ? parseInt(offset, 10) : 0,
+    });
+    return {
+      ...result,
+      data: result.data.map((claim) => ClaimMapper.toResponse(claim)),
+    };
+  }
+
+  @Get(':id/damages')
+  async findDamages(
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const claim = await this.getClaimByIdUseCase.execute(id);
+    const l = limit ? parseInt(limit, 10) : 5;
+    const o = offset ? parseInt(offset, 10) : 0;
+
+    const allDamages = claim.damages.map((damage) => ({
+      id: damage.id,
+      part: damage.part,
+      severity: damage.severity,
+      imageUrl: damage.imageUrl,
+      price: damage.price,
+    }));
+
+    const paginatedDamages = allDamages.slice(o, o + l);
+
+    return {
+      data: paginatedDamages,
+      total: allDamages.length,
+      limit: l,
+      offset: o,
+    };
   }
 
   @Get(':id')
