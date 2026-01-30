@@ -1,33 +1,84 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink, Router } from '@angular/router';
 import { ClaimsStore } from '../../services/claims.store';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { Claim } from '../../../../core/models/claim.model';
 
 @Component({
   selector: 'app-claim-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, ModalComponent],
   templateUrl: './claim-list.component.html',
 })
 export class ClaimListComponent implements OnInit {
   protected readonly store = inject(ClaimsStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+
+  isModalOpen = signal(false);
+  editingClaim = signal<Claim | null>(null);
+
+  claimForm = this.fb.group({
+    title: ['', [Validators.required, Validators.minLength(3)]],
+    description: ['', [Validators.required, Validators.minLength(10)]],
+  });
 
   ngOnInit(): void {
     this.store.loadAllClaims();
   }
 
+  openCreateModal() {
+    this.editingClaim.set(null);
+    this.claimForm.reset();
+    this.isModalOpen.set(true);
+  }
+
+  openEditModal(claim: Claim) {
+    this.editingClaim.set(claim);
+    this.claimForm.patchValue({
+      title: claim.title,
+      description: claim.description,
+    });
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingClaim.set(null);
+    this.claimForm.reset();
+  }
+
+  async onSubmit() {
+    if (this.claimForm.valid) {
+      const data = this.claimForm.value as { title: string; description: string };
+      const claimId = this.editingClaim()?.id;
+
+      if (claimId) {
+        await this.store.updateClaim(claimId, data);
+      } else {
+        await this.store.createClaim(data);
+      }
+
+      this.closeModal();
+    }
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
-      case 'PENDING':
+      case 'Pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'IN_REVIEW':
+      case 'In Review':
         return 'bg-blue-100 text-blue-800';
-      case 'FINISHED':
+      case 'Finished':
         return 'bg-green-100 text-green-800';
-      case 'CANCELED':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  navigateToDetail(claimId: string): void {
+    this.router.navigate(['/claims', claimId]);
   }
 }
