@@ -1,55 +1,71 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-lg shadow-md">
-  <h3 class="text-lg font-semibold mb-4">Add Damage</h3>
-
-  <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="part"> Description </label>
-    <input
-      id="part"
-      type="text"
-      formControlName="part"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      placeholder="e.g. Front Bumper"
-    />
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1" for="part">
+      Part Description
+    </label>
+    <div class="relative">
+      <input
+        id="part"
+        type="text"
+        formControlName="part"
+        class="block w-full px-4 py-3 rounded-lg border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-gray-50/30 text-gray-900 placeholder-gray-400 border shadow-sm"
+        placeholder="e.g. Front Bumper"
+      />
+    </div>
   </div>
 
-  <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="severity"> Severity </label>
-    <select
-      id="severity"
-      formControlName="severity"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-    >
-      <option *ngFor="let s of severities" [value]="s">{{ s }}</option>
-    </select>
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1" for="severity">
+        Severity
+      </label>
+      <select
+        id="severity"
+        formControlName="severity"
+        class="block w-full px-4 py-3 rounded-lg border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-gray-50/30 text-gray-900 border shadow-sm"
+      >
+        <option *ngFor="let s of severities" [value]="s">{{ s | titlecase }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1" for="price">
+        Estimated Price
+      </label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="text-gray-500 sm:text-sm">$</span>
+        </div>
+        <input
+          id="price"
+          type="number"
+          formControlName="price"
+          class="block w-full pl-7 pr-4 py-3 rounded-lg border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-gray-50/30 text-gray-900 border shadow-sm"
+          min="0"
+          placeholder="0.00"
+        />
+      </div>
+    </div>
   </div>
 
-  <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="price"> Price </label>
-    <input
-      id="price"
-      type="number"
-      formControlName="price"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      min="0"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="imageUrl"> Image URL </label>
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1" for="imageUrl"> Image URL </label>
     <input
       id="imageUrl"
       type="text"
       formControlName="imageUrl"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      class="block w-full px-4 py-3 rounded-lg border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-gray-50/30 text-gray-900 placeholder-gray-400 border shadow-sm"
       placeholder="https://example.com/image.jpg"
     />
   </div>
 
-  <button
-    type="submit"
-    [disabled]="form.invalid || isDisabled()"
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    Add Damage
-  </button>
+  <div class="pt-2">
+    <button
+      type="submit"
+      [disabled]="form.invalid || isDisabled()"
+      class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed"
+    >
+      Add Damage Record
+    </button>
+  </div>
 </form>
