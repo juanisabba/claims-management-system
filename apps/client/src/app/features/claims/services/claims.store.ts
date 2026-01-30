@@ -23,12 +23,24 @@ export class ClaimsStore {
   readonly claimsLimit = signal<number>(10);
   readonly claimsOffset = signal<number>(0);
   readonly totalClaims = signal<number>(0);
+  readonly totalClaimsPages = computed(
+    () => Math.ceil(this.totalClaims() / this.claimsLimit()) || 1,
+  );
+  readonly currentClaimsPage = computed(
+    () => Math.floor(this.claimsOffset() / this.claimsLimit()) + 1,
+  );
 
   // Pagination Damages
   readonly damagesLimit = signal<number>(5);
   readonly damagesOffset = signal<number>(0);
   readonly totalDamages = signal<number>(0);
   readonly paginatedDamages = signal<Damage[]>([]);
+  readonly totalDamagesPages = computed(
+    () => Math.ceil(this.totalDamages() / this.damagesLimit()) || 1,
+  );
+  readonly currentDamagesPage = computed(
+    () => Math.floor(this.damagesOffset() / this.damagesLimit()) + 1,
+  );
 
   // Computed
   readonly totalAmount = computed(() => {

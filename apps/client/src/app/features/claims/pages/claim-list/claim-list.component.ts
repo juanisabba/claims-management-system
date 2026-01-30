@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ClaimsStore } from '../../services/claims.store';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { Claim } from '../../../../core/models/claim.model';
@@ -17,6 +17,7 @@ export class ClaimListComponent implements OnInit {
   protected readonly store = inject(ClaimsStore);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly Math = Math;
 
   isModalOpen = signal(false);
@@ -27,7 +28,23 @@ export class ClaimListComponent implements OnInit {
     description: ['', [Validators.required, Validators.minLength(10), NoWhitespaceValidator()]],
   });
 
+  constructor() {
+    effect(() => {
+      const page = this.store.currentClaimsPage();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { page },
+        queryParamsHandling: 'merge',
+      });
+    });
+  }
+
   ngOnInit(): void {
+    const pageParam = this.route.snapshot.queryParamMap.get('page');
+    const page = pageParam ? parseInt(pageParam, 10) : 1;
+    const offset = (page - 1) * this.store.claimsLimit();
+
+    this.store.claimsOffset.set(offset);
     this.store.loadAllClaims();
   }
 
