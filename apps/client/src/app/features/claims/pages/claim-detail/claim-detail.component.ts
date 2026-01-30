@@ -42,13 +42,22 @@ export class ClaimDetailComponent implements OnInit {
   statusControl = new FormControl<ClaimStatus | null>(null);
 
   ClaimStatus = ClaimStatus;
-  claimStatuses = Object.values(ClaimStatus);
+  protected readonly claimStatuses = [
+    ClaimStatus.Pending,
+    ClaimStatus.InReview,
+    ClaimStatus.Finished,
+  ];
 
   constructor() {
     effect(() => {
-      const claim = this.store.claim();
+      const claim = this.store.currentClaim();
       if (claim) {
         this.statusControl.setValue(claim.status, { emitEvent: false });
+        if (claim.status === ClaimStatus.Finished) {
+          this.statusControl.disable({ emitEvent: false });
+        } else {
+          this.statusControl.enable({ emitEvent: false });
+        }
       }
     });
   }

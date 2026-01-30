@@ -12,6 +12,7 @@ export class ClaimsStore {
 
   // State
   readonly claim = signal<Claim | null>(null);
+  readonly currentClaim = computed(() => this.claim());
   readonly allClaims = signal<Claim[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
