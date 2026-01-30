@@ -1,0 +1,9 @@
+/* ELIMINA el @import y el @source */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mantén tus clases de prueba si las necesitas */
+.check-tailwind {
+    @apply bg-blue-500 text-white p-4;
+}
