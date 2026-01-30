@@ -26,9 +26,31 @@ export class HttpClaimRepository implements ClaimRepository {
       .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
   }
 
+  createClaim(claim: { title: string; description: string }): Observable<Claim> {
+    return this.http
+      .post<any>(this.apiUrl, claim)
+      .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
+  }
+
+  updateClaim(id: string, claim: { title: string; description: string }): Observable<Claim> {
+    return this.http
+      .patch<any>(`${this.apiUrl}/${id}`, claim)
+      .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
+  }
+
   addDamage(claimId: string, damage: Omit<Damage, 'id'>): Observable<Claim> {
     return this.http
       .post<any>(`${this.apiUrl}/${claimId}/damages`, damage)
+      .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
+  }
+
+  updateDamage(
+    claimId: string,
+    damageId: string,
+    damage: Partial<Omit<Damage, 'id'>>,
+  ): Observable<Claim> {
+    return this.http
+      .patch<any>(`${this.apiUrl}/${claimId}/damages/${damageId}`, damage)
       .pipe(map(ClaimMapper.fromApi), catchError(this.handleError));
   }
 
