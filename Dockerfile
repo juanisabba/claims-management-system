@@ -18,18 +18,31 @@ RUN pnpm run build
 FROM node:20-slim AS api
 ENV NODE_ENV=production
 WORKDIR /app
-# Copy only necessary files from build stage
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/api/dist ./dist
-COPY --from=build /app/apps/api/package.json ./package.json
+
+# Copiar package.json y pnpm-lock para instalar solo dependencias de producción
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/
+
+# Instalar solo dependencias de producción
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+RUN pnpm install --frozen-lockfile --prod
+
+# Copiar la aplicación compilada
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+
+WORKDIR /app/apps/api
 EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]
 
 # Stage 4: Client Runtime - Frontend using Nginx
 FROM nginx:stable-alpine AS client
-# Copy built Angular files to Nginx html directory
+# Copiar archivos estáticos compilados de Angular
 COPY --from=build /app/apps/client/dist/client/browser /usr/share/nginx/html
-# Copy custom nginx configuration
+
+# Copiar configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
