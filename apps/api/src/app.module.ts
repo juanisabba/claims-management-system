@@ -7,9 +7,11 @@ import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI || 'mongodb://mongodb:27017/claims_db',
-    ),
+    MongooseModule.forRootAsync({
+      useFactory: () => ({
+        uri: process.env.MONGODB_URI || 'mongodb://mongodb:27017/claims_db',
+      }),
+    }),
 
     ClaimsModule,
     HealthModule,

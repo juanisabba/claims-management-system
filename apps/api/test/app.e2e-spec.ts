@@ -5,11 +5,26 @@ import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import * as fs from 'fs';
 
 describe('AppController (e2e)', () => {
+  jest.setTimeout(60000);
   let app: INestApplication<App>;
 
   beforeEach(async () => {
+    if (!fs.existsSync('/.dockerenv') && !fs.existsSync('/run/.containerenv')) {
+      const defaultUri = 'mongodb://mongodb:27017/claims_db';
+      if (
+        !process.env.MONGODB_URI ||
+        process.env.MONGODB_URI.includes('mongodb://mongodb')
+      ) {
+        process.env.MONGODB_URI = (
+          process.env.MONGODB_URI || defaultUri
+        ).replace('mongodb://mongodb', 'mongodb://localhost');
+      }
+    }
+    console.log('Connecting to:', process.env.MONGODB_URI);
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

@@ -5,11 +5,26 @@ import { AppModule } from '../src/app.module';
 import { SeverityEnum } from '../src/claims/domain/value-objects/severity.enum';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import * as fs from 'fs';
 
 describe('Claims Integration (e2e)', () => {
+  jest.setTimeout(60000);
   let app: INestApplication;
 
   beforeAll(async () => {
+    if (!fs.existsSync('/.dockerenv') && !fs.existsSync('/run/.containerenv')) {
+      const defaultUri = 'mongodb://mongodb:27017/claims_db';
+      if (
+        !process.env.MONGODB_URI ||
+        process.env.MONGODB_URI.includes('mongodb://mongodb')
+      ) {
+        process.env.MONGODB_URI = (
+          process.env.MONGODB_URI || defaultUri
+        ).replace('mongodb://mongodb', 'mongodb://localhost');
+      }
+    }
+    console.log('Connecting to:', process.env.MONGODB_URI);
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         // We can override the MONGODB_URI via process.env
