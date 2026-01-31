@@ -53,10 +53,12 @@ MONGODB_URI=mongodb://mongodb:27017/claims_db
 
 ```bash
 # Using Docker
-docker-compose up --build
+docker-compose up -d --build
+```
 
+```bash
 # Or using Podman
-podman compose up --build
+podman compose up -d --build
 ```
 
 **Option B: Local Development (Traditional Approach)**
@@ -137,6 +139,14 @@ curl http://localhost:27017
 ## 🧪 Quality Assurance
 
 The project maintains high standards of data integrity through automated testing.
+
+Before running tests, ensure all dependencies are installed and the environment is ready.
+
+**Install dependencies:**
+
+```bash
+pnpm install
+```
 
 ### Run Unit Tests
 
