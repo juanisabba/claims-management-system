@@ -61,12 +61,52 @@ podman compose up --build
 
 **Option B: Local Development (Traditional Approach)**
 
+Before starting the application, you need to set up MongoDB:
+
+```bash
+# Option 1: Using Docker/Podman (Recommended)
+podman run -d \
+  --name mongodb \
+  -p 27017:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=password \
+  mongo:latest
+
+# Option 2: Using Docker Compose (Just MongoDB)
+podman compose up -d mongodb
+
+# Option 3: Install MongoDB locally
+# Follow: https://docs.mongodb.com/manual/installation/
+```
+
+Once MongoDB is running, start the application:
+
 ```bash
 # Install dependencies
 pnpm i
 
 # Start both API and Client from root
 pnpm dev
+```
+
+**Configure MongoDB connection:**
+
+Update your `.env` file in the root:
+
+```
+MONGODB_URI=mongodb://localhost:27017/claims_db
+PORT=3000
+API_PREFIX=api/v1
+```
+
+**Verify MongoDB is running:**
+
+```bash
+# Test connection
+mongosh mongodb://localhost:27017/claims_db
+
+# Or use curl
+curl http://localhost:27017
 ```
 
 4. Access the Application:
